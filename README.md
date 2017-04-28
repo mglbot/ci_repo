@@ -19,3 +19,4 @@ back to branches
 creds test
 
 ## restricting the bot
+bot whitelisted
