@@ -20,3 +20,4 @@ creds test
 
 ## restricting the bot
 bot whitelisted
+gpu still failing
