@@ -24,3 +24,4 @@ gpu still failing
 emails go out?
 another try at emails
 recipient list added
+culprits
