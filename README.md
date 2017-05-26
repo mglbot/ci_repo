@@ -23,4 +23,5 @@ bot whitelisted
 gpu still failing
 emails go out?
 another try at emails
-developers with default suffix
+developers
+new jenkins
