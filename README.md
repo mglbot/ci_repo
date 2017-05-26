@@ -23,5 +23,4 @@ bot whitelisted
 gpu still failing
 emails go out?
 another try at emails
-recipient list added
-culprits only
+developers with default suffix
