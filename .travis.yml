@@ -16,7 +16,8 @@ matrix:
             - libblas-dev
             - liblapack-dev
       env:
-        - MATRIX_EVAL="CC=/usr/bin/gcc-7 CXX=/usr/bin/g++-7"
+        - CC=/usr/bin/gcc-7
+        - CXX=/usr/bin/g++-7"
     - os: linux
       addons:
         apt:
@@ -31,7 +32,8 @@ matrix:
             - liblapack-dev
             - libiomp-dev
       env:
-        - MATRIX_EVAL="CC=/usr/bin/clang-6.0 CXX=/usr/bin/clang++-6.0"
+        - CC=/usr/bin/clang-6.0
+        - CXX=/usr/bin/clang++-6.0"
         - CFLAGS="-fopenmp=libiomp5"
         - CXXFLAGS="-fopenmp=libiomp5"
 
