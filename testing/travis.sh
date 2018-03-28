@@ -1,3 +1,4 @@
+#!/bin/bash
 
 echo ""
 echo ""
@@ -7,7 +8,7 @@ echo ""
 
 cd build
 
-cmake -DCMAKE_C_COMPILER="mpicc" -DCMAKE_CXX_COMPILER="mpicxx" -DCMAKE_CXX_FLAGS="-std=c++11" -DBLAS_blas_LIBRARY="/usr/lib64/libblas.so.3" -DLAPACK_lapack_LIBRARY="/usr/lib64/atlas/liblapack.so.3" ..
+cmake ..
 
 make
 
