@@ -18,6 +18,8 @@ matrix:
       env:
         - CC=/usr/bin/gcc-7
         - CXX=/usr/bin/g++-7"
+        - BUILD_TEST=true
+        - CLANG_FORMAT=false
     - os: linux
       addons:
         apt:
@@ -36,17 +38,27 @@ matrix:
         - CXX=/usr/bin/clang++-6.0"
         - CFLAGS="-fopenmp=libiomp5"
         - CXXFLAGS="-fopenmp=libiomp5"
-
+        - BUILD_TEST=true
+        - CLANG_FORMAT=false
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-6.0
+          packages:
+            - clang-format-6.0
+      env:
+        - BUILD_TEST=false
+        - CLANG_FORMAT=true
 
 before_install:
-  - eval "${MATRIX_EVAL}"
   - which $CC
   - $CC --version
   - which $CXX
   - $CXX --version
 
-install: true
-
 script:
   # Run your build commands next
-  - ./testing/travis.sh
+  - if [ BUILD_TEST ] ; then ./testing/travis-build.sh ; fi
+  - if [ CLANG_FORMAT ] ; then ./testing/travis-format.sh ; fi
