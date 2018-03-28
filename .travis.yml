@@ -13,6 +13,7 @@ matrix:
             - gcc-7
             - g++-7
             - cmake
+            - cmake-data
             - libblas-dev
             - liblapack-dev
       env:
@@ -26,10 +27,13 @@ matrix:
           packages:
             - clang-6.0
             - cmake
+            - cmake-data
             - libblas-dev
             - liblapack-dev
+            - libiomp-dev
       env:
-        - MATRIX_EVAL="CC=/usr/bin/clang-6.0 && CXX=/usr/bin/clang++-6.0"
+        - MATRIX_EVAL="CC=/usr/bin/gcc-7 && CXX=/usr/bin/g++-7"
+          #- MATRIX_EVAL="CC=/usr/bin/clang-6.0 && CXX=/usr/bin/clang++-6.0 && CFLAGS=-fopenmp=libiomp5 && CXXFLAGS=-fopenmp=libiomp5"
 
 
 before_install:
