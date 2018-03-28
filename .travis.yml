@@ -1,29 +1,51 @@
 dist: trusty
 language:
   - cpp
+
 compiler:
   - gcc
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - gcc-7
-      - g++-7
-      - cmake
-      - libblas-dev
-      - liblapack-dev
+  - clang
+
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-7
+            - g++-7
+            - cmake
+            - libblas-dev
+            - liblapack-dev
+      env:
+        - MATRIX_EVAL="CC=/usr/bin/gcc-7 && CXX=/usr/bin/g++-7"
+        - VARIANT="gcc"
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-6.0
+          packages:
+            - clang-6.0
+            - cmake
+            - libblas-dev
+            - liblapack-dev
+      env:
+        - MATRIX_EVAL="CC=/usr/bin/clang-6.0 && CXX=/usr/bin/clang++-6.0"
+        - VARIANT="clang"
+
+
+before_install:
+  - eval "${MATRIX_EVAL}"
 
 install: true
 
 script:
-  # Link gcc-6 and g++-6 to their standard commands
-  # - ln -sf /usr/bin/gcc-7 /usr/local/bin/gcc
-  # - ln -sf /usr/bin/g++-7 /usr/local/bin/g++
-  # Export CC and CXX to tell cmake which compiler to use
-  - export CC=/usr/bin/gcc-7
-  - export CXX=/usr/bin/g++-7
   # Check versions of gcc, g++ and cmake
-  - gcc -v && g++ -v && cmake --version
+  - if [ ${VARIANT} -eq "gcc" ] ; then gcc -v && g++ -v && cmake --version ; fi
+  - if [ ${VARIANT} -eq "clang" ] ; then clang -v && clang++ -v && cmake --version ; fi
   # Run your build commands next
   - ./testing/travis.sh
