@@ -21,7 +21,6 @@ matrix:
             - liblapack-dev
       env:
         - MATRIX_EVAL="CC=/usr/bin/gcc-7 && CXX=/usr/bin/g++-7"
-        - VARIANT="gcc"
     - os: linux
       addons:
         apt:
@@ -35,7 +34,6 @@ matrix:
             - liblapack-dev
       env:
         - MATRIX_EVAL="CC=/usr/bin/clang-6.0 && CXX=/usr/bin/clang++-6.0"
-        - VARIANT="clang"
 
 
 before_install:
@@ -44,8 +42,5 @@ before_install:
 install: true
 
 script:
-  # Check versions of gcc, g++ and cmake
-  - if [ ${VARIANT} -eq "gcc" ] ; then gcc -v && g++ -v && cmake --version ; fi
-  - if [ ${VARIANT} -eq "clang" ] ; then clang -v && clang++ -v && cmake --version ; fi
   # Run your build commands next
   - ./testing/travis.sh
