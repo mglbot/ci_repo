@@ -32,10 +32,7 @@ matrix:
             - liblapack-dev
             - libiomp-dev
       env:
-        - MATRIX_EVAL="CC=/usr/bin/clang-6.0 && \
-                       CXX=/usr/bin/clang++-6.0 && \
-                       CFLAGS=-fopenmp=libiomp5 && \
-                       CXXFLAGS=-fopenmp=libiomp5"
+        - MATRIX_EVAL="CC=/usr/bin/clang-6.0 CXX=/usr/bin/clang++-6.0 CFLAGS=-fopenmp=libiomp5 CXXFLAGS=-fopenmp=libiomp5"
 
 
 before_install:
