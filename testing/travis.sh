@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 echo ""
 echo ""
@@ -52,6 +52,6 @@ echo ----------------------------------------------------
 echo
 
 ./bin/check_determinant | awk 'BEGIN{status=1} /All checks passed for determinant/{status=0} 1; END{exit(status)}'
-if [ $?  != 0] ; then STATUS=1 ; fi
+if [ $?  != 0 ] ; then STATUS=1 ; fi
 
 exit ${STATUS}
