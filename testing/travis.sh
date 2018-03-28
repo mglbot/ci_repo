@@ -27,7 +27,7 @@ echo checking J2 full precision
 echo ----------------------------------------------------
 echo
 
-./bin/check_wfc -f J2 | awk 'BEGIN{status=1} /All checks passed for J2/{status=0} 1; END{exit(status)}'
+./bin/check_wfc -f J2 | awk 'BEGIN{status=1} /All checks passed for J1/{status=0} 1; END{exit(status)}'
 if [ $? != 0 ] ; then STATUS=1 ; fi
 
 echo
