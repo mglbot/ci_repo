@@ -60,5 +60,5 @@ before_install:
 
 script:
   # Run your build commands next
-  - if [ BUILD_TEST ] ; then ./testing/travis-build.sh ; fi
-  - if [ CLANG_FORMAT ] ; then ./testing/travis-format.sh ; fi
+  - if [ $BUILD_TEST ] ; then ./testing/travis-build.sh ; fi
+  - if [ $CLANG_FORMAT ] ; then ./testing/travis-format.sh ; fi
