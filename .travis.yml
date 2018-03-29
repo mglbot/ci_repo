@@ -4,7 +4,7 @@ language: cpp
 jobs:
   include:
     - stage: format
-      - os: linux
+      os: linux
         addons:
           apt:
             sources:
@@ -12,11 +12,10 @@ jobs:
               - llvm-toolchain-trusty-6.0
             packages:
               - clang-format-6.0
-      install: true
       script:
           - ./testing/travis-format.sh
     - stage: build
-      - os: linux
+      os: linux
         addons:
           apt:
             sources:
@@ -34,7 +33,8 @@ jobs:
         - eval "${MATRIX_EVAL}" # necessary b/c travis overwrites CC/CXX
       script:
         - ./testing/travis-build.sh
-      - os: linux
+    - stage: build
+      os: linux
         addons:
           apt:
             sources:
