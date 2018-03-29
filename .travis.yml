@@ -4,52 +4,52 @@ language: cpp
 jobs:
   include:
     - stage: format
-      matrix:
-        include:
-        - os: linux
-            addons:
-              apt:
-                sources:
-                  - ubuntu-toolchain-r-test
-                  - llvm-toolchain-trusty-6.0
-                packages:
-                  - clang-format-6.0
+      os: linux
+        addons:
+          apt:
+            sources:
+              - ubuntu-toolchain-r-test
+              - llvm-toolchain-trusty-6.0
+            packages:
+              - clang-format-6.0
       script:
           - ./testing/travis-format.sh
     - stage: build
-      matrix:
-        include:
-        - os: linux
-            addons:
-              apt:
-                sources:
-                  - ubuntu-toolchain-r-test
-                packages:
-                  - gcc-7
-                  - g++-7
-                  - cmake
-                  - cmake-data
-                  - libblas-dev
-                  - liblapack-dev
-            env:
-              - MATRIX_EVAL="CC=/usr/bin/gcc-7 CXX=/usr/bin/g++-7"
-        - os: linux
-            addons:
-              apt:
-                sources:
-                  - ubuntu-toolchain-r-test
-                  - llvm-toolchain-trusty-6.0
-                packages:
-                  - clang-6.0
-                  - cmake
-                  - cmake-data
-                  - libblas-dev
-                  - liblapack-dev
-                  - libiomp-dev
-            env:
-              - MATRIX_EVAL="CC=/usr/bin/clang-6.0 CXX=/usr/bin/clang++-6.0"
-              - CFLAGS="-fopenmp=libiomp5"
-              - CXXFLAGS="-fopenmp=libiomp5"
+      os: linux
+        addons:
+          apt:
+            sources:
+              - ubuntu-toolchain-r-test
+            packages:
+              - gcc-7
+              - g++-7
+              - cmake
+              - cmake-data
+              - libblas-dev
+              - liblapack-dev
+        env:
+          - MATRIX_EVAL="CC=/usr/bin/gcc-7 CXX=/usr/bin/g++-7"
+      before_install:
+        - eval "${MATRIX_EVAL}" # necessary b/c travis overwrites CC/CXX
+      script:
+        - ./testing/travis-build.sh
+    - os: linux
+        addons:
+          apt:
+            sources:
+              - ubuntu-toolchain-r-test
+              - llvm-toolchain-trusty-6.0
+            packages:
+              - clang-6.0
+              - cmake
+              - cmake-data
+              - libblas-dev
+              - liblapack-dev
+              - libiomp-dev
+        env:
+          - MATRIX_EVAL="CC=/usr/bin/clang-6.0 CXX=/usr/bin/clang++-6.0"
+          - CFLAGS="-fopenmp=libiomp5"
+          - CXXFLAGS="-fopenmp=libiomp5"
       before_install:
         - eval "${MATRIX_EVAL}" # necessary b/c travis overwrites CC/CXX
       script:
