@@ -1200,8 +1200,7 @@ public:
 
       @verbatim
       int value = 10;
-      QueryIntAttribute( "foo", &value );		// if "foo" isn't found, value will
-     still be 10
+      QueryIntAttribute( "foo", &value );// if "foo" not found, value still 10
       @endverbatim
   */
   XMLError QueryIntAttribute(const char *name, int *value) const {
@@ -1279,8 +1278,7 @@ public:
 
       @verbatim
       int value = 10;
-      QueryAttribute( "foo", &value );		// if "foo" isn't found, value will
-     still be 10
+      QueryAttribute( "foo", &value );// if "foo" not found, value still 10
       @endverbatim
   */
   int QueryAttribute(const char *name, int *value) const {
