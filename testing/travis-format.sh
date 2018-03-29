@@ -12,7 +12,7 @@ STATUS=0
 
 for bob in $(find . -name "*.cpp" -o -name "*.hpp" -o -name "*.c" -o -name "*.h")
 do
-  DIFF=$(diff -u <(cat ${bob}) <(clang-format -style=file ${bob}))
+  DIFF=$(diff -u <(cat ${bob}) <(/usr/bin/clang-format-6.0 -style=file ${bob}))
   if [ ! -z "${DIFF}" ] ; then
     STATUS=1
     echo ${bob}
