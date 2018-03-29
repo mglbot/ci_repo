@@ -6,8 +6,8 @@ echo "checking the code against clang-format"
 echo ""
 echo ""
 
-STATUS=0
+cd src/
 
-/usr/bin/clang-format-6.0 --version
+diff -u <(cat **/*.cpp **/*.hpp **/*.c **/*.h) <(/usr/bin/clang-format-6.0 -style=file **/*.cpp **/*.hpp **/*.c **/*.h)
 
-exit ${STATUS}
+exit $?
