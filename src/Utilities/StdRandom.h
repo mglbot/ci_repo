@@ -16,8 +16,7 @@
 #include <random>
 #include "Utilities/Configuration.h"
 
-template <typename T, typename RNG = std::mt19937> struct StdRandom
-{
+template <typename T, typename RNG = std::mt19937> struct StdRandom {
   /// real result type
   typedef T result_type;
   /// randmon number generator [0,max) where max depends on the generator type
@@ -43,8 +42,7 @@ template <typename T, typename RNG = std::mt19937> struct StdRandom
 
   StdRandom()
       : nContexts(1), myContext(0), baseOffset(0), uniform(T(0), T(1)),
-        normal(T(0), T(1))
-  {
+        normal(T(0), T(1)) {
     myRNG.seed(MakeSeed(omp_get_thread_num(), omp_get_num_threads()));
   }
 
@@ -52,7 +50,8 @@ template <typename T, typename RNG = std::mt19937> struct StdRandom
       : nContexts(1), myContext(0), baseOffset(0)
   //, uniform(T(0),T(1)), normal(T(0),T(1))
   {
-    if (iseed == 0) iseed = MakeSeed(0, 1);
+    if (iseed == 0)
+      iseed = MakeSeed(0, 1);
     myRNG.seed(iseed);
   }
 
@@ -61,23 +60,20 @@ template <typename T, typename RNG = std::mt19937> struct StdRandom
   template <typename T1>
   StdRandom(const StdRandom<T1, RNG> &rng)
       : nContexts(1), myContext(0), baseOffset(0), myRNG(rng.myRNG),
-        uniform(T(0), T(1)), normal(T(0), T(1))
-  {
-  }
+        uniform(T(0), T(1)), normal(T(0), T(1)) {}
 
   /** initialize the stream */
-  inline void init(int i, int nstr, int iseed_in, uint_type offset = 1)
-  {
-    uint_type baseSeed          = iseed_in;
-    myContext                   = i;
-    nContexts                   = nstr;
-    if (iseed_in <= 0) baseSeed = MakeSeed(i, nstr);
-    baseOffset                  = offset;
+  inline void init(int i, int nstr, int iseed_in, uint_type offset = 1) {
+    uint_type baseSeed = iseed_in;
+    myContext = i;
+    nContexts = nstr;
+    if (iseed_in <= 0)
+      baseSeed = MakeSeed(i, nstr);
+    baseOffset = offset;
     myRNG.seed(baseSeed);
   }
 
-  template <typename T1> inline void reset(const StdRandom<T1, RNG> &rng)
-  {
+  template <typename T1> inline void reset(const StdRandom<T1, RNG> &rng) {
     myRNG = rng; // copy the state
   }
 
@@ -90,28 +86,25 @@ template <typename T, typename RNG = std::mt19937> struct StdRandom
   inline void seed(uint_type aseed) { myRNG.seed(aseed); }
 
   /** return a random number [0,1)
-  */
+   */
   inline result_type rand() { return uniform(myRNG); }
   /** return a random number [0,1)
-  */
+   */
   inline result_type operator()() { return uniform(myRNG); }
 
   /** generate a series of random numbers */
-  inline void generate_uniform(T *restrict d, int n)
-  {
+  inline void generate_uniform(T *restrict d, int n) {
     for (int i = 0; i < n; ++i)
-      d[i]     = uniform(myRNG);
+      d[i] = uniform(myRNG);
   }
 
-  inline void generate_normal(T *restrict d, int n)
-  {
+  inline void generate_normal(T *restrict d, int n) {
     BoxMuller2::generate(*this, d, n);
   }
 
   /** return a random integer
-  */
-  inline uint32_t irand()
-  {
+   */
+  inline uint32_t irand() {
     std::uniform_int_distribution<uint32_t> a;
     return a(myRNG);
   }

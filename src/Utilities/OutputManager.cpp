@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////////
-// This file is distributed under the University of Illinois/NCSA Open Source License.
-// See LICENSE file in top directory for details.
+// This file is distributed under the University of Illinois/NCSA Open Source
+// License. See LICENSE file in top directory for details.
 //
 // Copyright (c) 2017 Jeongnim Kim and QMCPACK developers.
 //
@@ -9,10 +9,7 @@
 // File created by: Mark Dewing, mdewing@anl.gov Argonne National Laboratory
 //////////////////////////////////////////////////////////////////////////////////////
 
-
-
 #include <Utilities/OutputManager.h>
-
 
 InfoStream infoSummary(&std::cout);
 InfoStream infoLog(&std::cout);
@@ -21,10 +18,7 @@ InfoStream infoDebug(&std::cout);
 
 OutputManagerClass outputManager(Verbosity::LOW);
 
-
-void
-OutputManagerClass::setVerbosity(Verbosity level)
-{
+void OutputManagerClass::setVerbosity(Verbosity level) {
   global_verbosity_level = level;
   if (isActive(Verbosity::DEBUG)) {
     infoSummary.resume();
@@ -41,28 +35,23 @@ OutputManagerClass::setVerbosity(Verbosity level)
   }
 }
 
-bool OutputManagerClass::isActive(Verbosity level)
-{
+bool OutputManagerClass::isActive(Verbosity level) {
   return level <= global_verbosity_level;
 }
 
-void OutputManagerClass::pause()
-{
+void OutputManagerClass::pause() {
   infoSummary.pause();
   infoLog.pause();
 }
 
-void OutputManagerClass::resume()
-{
+void OutputManagerClass::resume() {
   infoSummary.resume();
   infoLog.resume();
 }
 
-void OutputManagerClass::shutOff()
-{
+void OutputManagerClass::shutOff() {
   infoSummary.shutOff();
   infoLog.shutOff();
   infoError.shutOff();
   infoDebug.shutOff();
 }
-

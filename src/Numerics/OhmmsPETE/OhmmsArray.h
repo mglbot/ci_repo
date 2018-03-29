@@ -27,8 +27,7 @@
 #include <vector>
 #include <iostream>
 
-template <class T, unsigned D> struct Array
-{
+template <class T, unsigned D> struct Array {
 
   typedef T Type_t;
   typedef std::vector<T> Container_t;
@@ -38,14 +37,13 @@ template <class T, unsigned D> struct Array
   Container_t X;
 
   // default constructor
-  Array()
-  {
-    for (int i = 0; i < D; i++) Length[i] = 0;
+  Array() {
+    for (int i = 0; i < D; i++)
+      Length[i] = 0;
   }
 
   // copy constructor
-  Array(const Array &rhs)
-  {
+  Array(const Array &rhs) {
     resize(rhs);
     std::copy(rhs.begin(), rhs.end(), X.begin());
   }
@@ -75,17 +73,18 @@ template <class T, unsigned D> struct Array
 
   Container_t &storage() { return X; }
 
-  template <typename TT> void resize(const Array<TT, D> &rhs)
-  {
+  template <typename TT> void resize(const Array<TT, D> &rhs) {
     X.resize(rhs.size());
-    for (int i = 0; i < D; i++) Length[i] = rhs.Length[i];
+    for (int i = 0; i < D; i++)
+      Length[i] = rhs.Length[i];
   }
 
-  template <typename ST1> void resize(ST1 *newdims)
-  {
+  template <typename ST1> void resize(ST1 *newdims) {
     int ntot = 1;
-    for (int i = 0; i < D; ++i) ntot *= Length[i] = newdims[i];
-    if (ntot == 0) return;
+    for (int i = 0; i < D; ++i)
+      ntot *= Length[i] = newdims[i];
+    if (ntot == 0)
+      return;
     X.resize(ntot);
   }
 
@@ -97,8 +96,7 @@ template <class T, unsigned D> struct Array
 
   inline typename Container_t::iterator begin() { return X.begin(); }
   inline typename Container_t::iterator end() { return X.end(); }
-  inline typename Container_t::const_iterator begin() const
-  {
+  inline typename Container_t::const_iterator begin() const {
     return X.begin();
   }
   inline typename Container_t::const_iterator end() const { return X.end(); }
@@ -115,24 +113,20 @@ template <class T, unsigned D> struct Array
 
   inline Type_t *last_address() { return &(X[0]) + X.size(); }
 
-  This_t &operator=(const T &rhs)
-  {
+  This_t &operator=(const T &rhs) {
     std::fill(X.begin(), X.end(), rhs);
     return *this;
   }
 
-  This_t &operator=(const Array &rhs)
-  {
-    if (&rhs != this)
-    {
+  This_t &operator=(const Array &rhs) {
+    if (&rhs != this) {
       resize(rhs);
       std::copy(rhs.begin(), rhs.end(), X.begin());
     }
     return *this;
   }
 
-  template <typename TT> This_t &operator=(const Array<TT, D> &rhs)
-  {
+  template <typename TT> This_t &operator=(const Array<TT, D> &rhs) {
     resize(rhs);
     std::copy(rhs.begin(), rhs.end(), X.begin());
     return *this;
@@ -143,52 +137,44 @@ template <class T, unsigned D> struct Array
 
   inline Type_t operator()(size_t i) const { return X[i]; }
   inline Type_t &operator()(size_t i, size_t j) { return X[j + Length[1] * i]; }
-  inline Type_t operator()(size_t i, size_t j) const
-  {
+  inline Type_t operator()(size_t i, size_t j) const {
     return X[j + Length[1] * i];
   }
-  inline Type_t &operator()(size_t i, size_t j, size_t k)
-  {
+  inline Type_t &operator()(size_t i, size_t j, size_t k) {
     return X[k + Length[2] * (j + Length[1] * i)];
   }
-  inline Type_t operator()(size_t i, size_t j, size_t k) const
-  {
+  inline Type_t operator()(size_t i, size_t j, size_t k) const {
     return X[k + Length[2] * (j + Length[1] * i)];
   }
-  inline Type_t &operator()(size_t i, size_t j, size_t k, size_t l)
-  {
+  inline Type_t &operator()(size_t i, size_t j, size_t k, size_t l) {
     return X[l + Length[3] * (k + Length[2] * (j + Length[1] * i))];
   }
-  inline Type_t operator()(size_t i, size_t j, size_t k, size_t l) const
-  {
+  inline Type_t operator()(size_t i, size_t j, size_t k, size_t l) const {
     return X[l + Length[3] * (k + Length[2] * (j + Length[1] * i))];
   }
 
-  inline Type_t sum()
-  {
+  inline Type_t sum() {
     Type_t s = 0;
-    for (int i = 0; i < X.size(); ++i) s += X[i];
+    for (int i = 0; i < X.size(); ++i)
+      s += X[i];
     return s;
   }
 };
 
 // need to assert
-template <class T, unsigned D> void Array<T, D>::resize(size_t n)
-{
+template <class T, unsigned D> void Array<T, D>::resize(size_t n) {
   Length[0] = n;
   X.resize(n, T());
 }
 
-template <class T, unsigned D> void Array<T, D>::resize(size_t n, size_t m)
-{
+template <class T, unsigned D> void Array<T, D>::resize(size_t n, size_t m) {
   Length[0] = n;
   Length[1] = m;
   X.resize(n * m, T());
 }
 
 template <class T, unsigned D>
-void Array<T, D>::resize(size_t l, size_t m, size_t n)
-{
+void Array<T, D>::resize(size_t l, size_t m, size_t n) {
   Length[0] = l;
   Length[1] = m;
   Length[2] = n;
@@ -196,8 +182,7 @@ void Array<T, D>::resize(size_t l, size_t m, size_t n)
 }
 
 template <class T, unsigned D>
-void Array<T, D>::resize(size_t l, size_t m, size_t n, size_t o)
-{
+void Array<T, D>::resize(size_t l, size_t m, size_t n, size_t o) {
   Length[0] = l;
   Length[1] = m;
   Length[2] = n;

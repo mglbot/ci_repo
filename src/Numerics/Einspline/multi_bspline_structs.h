@@ -27,8 +27,7 @@
 ///////////////////////////
 // Single precision real //
 ///////////////////////////
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   float *restrict coefs;
@@ -39,8 +38,7 @@ typedef struct
   size_t coefs_size;
 } multi_UBspline_1d_s;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   float *restrict coefs;
@@ -50,8 +48,7 @@ typedef struct
   int num_splines;
 } multi_UBspline_2d_s;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   float *restrict coefs;
@@ -65,8 +62,7 @@ typedef struct
 ///////////////////////////
 // Double precision real //
 ///////////////////////////
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   double *restrict coefs;
@@ -77,8 +73,7 @@ typedef struct
   size_t coefs_size;
 } multi_UBspline_1d_d;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   double *restrict coefs;
@@ -88,8 +83,7 @@ typedef struct
   int num_splines;
 } multi_UBspline_2d_d;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   double *restrict coefs;
@@ -103,8 +97,7 @@ typedef struct
 //////////////////////////////
 // Single precision complex //
 //////////////////////////////
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   complex_float *restrict coefs;
@@ -115,8 +108,7 @@ typedef struct
   size_t coefs_size;
 } multi_UBspline_1d_c;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   complex_float *restrict coefs;
@@ -128,8 +120,7 @@ typedef struct
   complex_float *restrict lapl2;
 } multi_UBspline_2d_c;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   complex_float *restrict coefs;
@@ -145,8 +136,7 @@ typedef struct
 //////////////////////////////
 // Double precision complex //
 //////////////////////////////
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   complex_double *restrict coefs;
@@ -157,8 +147,7 @@ typedef struct
   size_t coefs_size;
 } multi_UBspline_1d_z;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   complex_double *restrict coefs;
@@ -170,8 +159,7 @@ typedef struct
   complex_double *restrict lapl2;
 } multi_UBspline_2d_z;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   complex_double *restrict coefs;

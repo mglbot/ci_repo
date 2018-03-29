@@ -25,8 +25,7 @@
 #include <algorithm>
 #include <config.h>
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
 // clang-format off
 /** generic Boundary condition handler
@@ -55,12 +54,10 @@ namespace qmcplusplus
  */
 // clang-format on
 
-template <class T, unsigned D, int SC> struct DTD_BConds
-{
+template <class T, unsigned D, int SC> struct DTD_BConds {
 
   /** constructor: doing nothing */
-  inline DTD_BConds(const CrystalLattice<T, D> &lat)
-  {
+  inline DTD_BConds(const CrystalLattice<T, D> &lat) {
     APP_ABORT("qmcplusplus::DTD_BConds default DTD_BConds is not allowed in "
               "miniQMC!\n");
   }
@@ -80,33 +77,27 @@ template <class T, unsigned D, int SC> struct DTD_BConds
    * conditions.
    */
   inline void apply_bc(std::vector<TinyVector<T, D>> &dr, std::vector<T> &r,
-                       std::vector<T> &rinv) const
-  {
+                       std::vector<T> &rinv) const {
     const int n = dr.size();
     const T cone(1);
-    for (int i = 0; i < n; ++i)
-    {
-      r[i]    = std::sqrt(apply_bc(dr[i]));
+    for (int i = 0; i < n; ++i) {
+      r[i] = std::sqrt(apply_bc(dr[i]));
       rinv[i] = cone / r[i];
     }
   }
 };
 
-
-
 /** specialization for a periodic 3D general cell
  *
  * Wigner-Seitz cell radius > simulation cell radius
  * Need to check image cells
-*/
-template <class T> struct DTD_BConds<T, 3, PPPG + SOA_OFFSET>
-{
+ */
+template <class T> struct DTD_BConds<T, 3, PPPG + SOA_OFFSET> {
   T g00, g10, g20, g01, g11, g21, g02, g12, g22;
   T r00, r10, r20, r01, r11, r21, r02, r12, r22;
   VectorSoAContainer<T, 3> corners;
 
-  DTD_BConds(const CrystalLattice<T, 3> &lat)
-  {
+  DTD_BConds(const CrystalLattice<T, 3> &lat) {
     TinyVector<TinyVector<T, 3>, 3> rb;
     rb[0] = lat.a(0);
     rb[1] = lat.a(1);
@@ -126,7 +117,7 @@ template <class T> struct DTD_BConds<T, 3, PPPG + SOA_OFFSET>
     Tensor<T, 3> rbt;
     for (int i = 0; i < 3; ++i)
       for (int j = 0; j < 3; ++j)
-        rbt(i, j)  = rb[i][j];
+        rbt(i, j) = rb[i][j];
     Tensor<T, 3> g = inverse(rbt);
     g00 = g(0);
     g10 = g(3);
@@ -154,8 +145,7 @@ template <class T> struct DTD_BConds<T, 3, PPPG + SOA_OFFSET>
 
   template <typename PT, typename RSoA>
   void computeDistances(const PT &pos, const RSoA &R0, T *restrict temp_r,
-                        RSoA &temp_dr, int first, int last, int flip_ind = 0)
-  {
+                        RSoA &temp_dr, int first, int last, int flip_ind = 0) {
     const T x0 = pos[0];
     const T y0 = pos[1];
     const T z0 = pos[2];
@@ -178,9 +168,8 @@ template <class T> struct DTD_BConds<T, 3, PPPG + SOA_OFFSET>
     CONSTEXPR T minusone(-1);
     CONSTEXPR T one(1);
 #pragma omp simd aligned(temp_r, px, py, pz, dx, dy, dz)
-    for (int iat = first; iat < last; ++iat)
-    {
-      const T flip    = iat < flip_ind ? one : minusone;
+    for (int iat = first; iat < last; ++iat) {
+      const T flip = iat < flip_ind ? one : minusone;
       const T displ_0 = (px[iat] - x0) * flip;
       const T displ_1 = (py[iat] - y0) * flip;
       const T displ_2 = (pz[iat] - z0) * flip;
@@ -196,24 +185,23 @@ template <class T> struct DTD_BConds<T, 3, PPPG + SOA_OFFSET>
       T rmin = delx * delx + dely * dely + delz * delz;
       int ic = 0;
 #pragma unroll(7)
-      for (int c = 1; c < 8; ++c)
-      {
-        const T x  = delx + cellx[c];
-        const T y  = dely + celly[c];
-        const T z  = delz + cellz[c];
+      for (int c = 1; c < 8; ++c) {
+        const T x = delx + cellx[c];
+        const T y = dely + celly[c];
+        const T z = delz + cellz[c];
         const T r2 = x * x + y * y + z * z;
-        ic         = (r2 < rmin) ? c : ic;
-        rmin       = (r2 < rmin) ? r2 : rmin;
+        ic = (r2 < rmin) ? c : ic;
+        rmin = (r2 < rmin) ? r2 : rmin;
       }
 
       temp_r[iat] = std::sqrt(rmin);
-      dx[iat]     = flip * (delx + cellx[ic]);
-      dy[iat]     = flip * (dely + celly[ic]);
-      dz[iat]     = flip * (delz + cellz[ic]);
+      dx[iat] = flip * (delx + cellx[ic]);
+      dy[iat] = flip * (dely + celly[ic]);
+      dz[iat] = flip * (delz + cellz[ic]);
     }
   }
 };
 
-}
+} // namespace qmcplusplus
 
 #endif // OHMMS_PARTICLE_BCONDS_H

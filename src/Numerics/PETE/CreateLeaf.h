@@ -29,8 +29,7 @@
 #ifndef PETE_PETE_CREATELEAF_H
 #define PETE_PETE_CREATELEAF_H
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 //-----------------------------------------------------------------------------
 // Expression<T> - a class that wraps the contents of an expression
 // (so that we don't need to define operators for all the tree types)
@@ -46,8 +45,7 @@ template <class T> class Expression;
 
 #else
 
-template <class T> class Expression
-{
+template <class T> class Expression {
 public:
   // Type of the expression.
 
@@ -87,8 +85,7 @@ private:
 // The general case is assumed to be a scalar, since users need to specialize
 // CreateLeaf for their container classes.
 
-template <class T> struct CreateLeaf
-{
+template <class T> struct CreateLeaf {
   typedef Scalar<T> Leaf_t;
 
   inline static Leaf_t make(const T &a) { return Scalar<T>(a); }
@@ -100,12 +97,10 @@ template <class T> struct CreateLeaf
 // to wrap the whole expression. (Expression<Scalar<>>+Expression<BinaryNode<>>
 // becomes Expression<BinaryNode<OpAdd,Scalar<>,BinaryNode<>>>)
 
-template <class T> struct CreateLeaf<Expression<T>>
-{
+template <class T> struct CreateLeaf<Expression<T>> {
   typedef typename Expression<T>::Expression_t Leaf_t;
 
-  inline static const Leaf_t &make(const Expression<T> &a)
-  {
+  inline static const Leaf_t &make(const Expression<T> &a) {
     return a.expression();
   }
 };
@@ -124,12 +119,11 @@ template <class T> struct CreateLeaf<Expression<T>>
 // Array+Array is another Array.
 //-----------------------------------------------------------------------------
 
-template <class T> struct MakeReturn
-{
+template <class T> struct MakeReturn {
   typedef Expression<T> Expression_t;
   inline static Expression_t make(const T &a) { return Expression_t(a); }
 };
-}
+} // namespace qmcplusplus
 
 #endif // PETE_PETE_CREATELEAF_H
 

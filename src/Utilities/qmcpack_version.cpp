@@ -29,18 +29,19 @@
 #define QMCPACK_GIT_COMMIT_SUBJECT GIT_COMMIT_SUBJECT_RAW
 #endif
 
-using std::endl;
 using qmcplusplus::app_summary;
+using std::endl;
 
-void print_version(bool verbose)
-{
+void print_version(bool verbose) {
 #ifdef QMCPACK_GIT_BRANCH
   app_summary() << "miniqmc git branch: " << QMCPACK_GIT_BRANCH << endl;
   app_summary() << "miniqmc git commit: " << QMCPACK_GIT_HASH << endl;
 
   if (verbose) {
-    app_summary() << "miniqmc git commit date: " << QMCPACK_GIT_COMMIT_LAST_CHANGED << endl;
-    app_summary() << "miniqmc git commit subject: " << QMCPACK_GIT_COMMIT_SUBJECT << endl;
+    app_summary() << "miniqmc git commit date: "
+                  << QMCPACK_GIT_COMMIT_LAST_CHANGED << endl;
+    app_summary() << "miniqmc git commit subject: "
+                  << QMCPACK_GIT_COMMIT_SUBJECT << endl;
   }
 
 #else

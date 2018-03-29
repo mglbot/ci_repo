@@ -17,24 +17,22 @@
    @brief Wavefunction based on Structure of Arrays (SoA) storage
  */
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 WaveFunction::WaveFunction(ParticleSet &ions, ParticleSet &els,
-                           RandomGenerator<RealType> RNG)
-{
+                           RandomGenerator<RealType> RNG) {
   FirstTime = true;
 
   ions.RSoA = ions.R;
-  els.RSoA  = els.R;
+  els.RSoA = els.R;
 
   // distance tables
   d_ee = DistanceTable::add(els, DT_SOA);
   d_ie = DistanceTable::add(ions, els, DT_SOA);
 
   // determinant component
-  nelup = els.getTotalNum()/2;
+  nelup = els.getTotalNum() / 2;
   Det_up = new DetType(nelup, RNG, 0);
-  Det_dn = new DetType(els.getTotalNum()-nelup, RNG, nelup);
+  Det_dn = new DetType(els.getTotalNum() - nelup, RNG, nelup);
 
   // J1 component
   J1 = new J1OrbType(ions, els);
@@ -49,8 +47,7 @@ WaveFunction::WaveFunction(ParticleSet &ions, ParticleSet &els,
   buildJeeI(*J3, els.Lattice.WignerSeitzRadius);
 }
 
-WaveFunction::~WaveFunction()
-{
+WaveFunction::~WaveFunction() {
   delete Det_up;
   delete Det_dn;
   delete J1;
@@ -58,14 +55,12 @@ WaveFunction::~WaveFunction()
   delete J3;
 }
 
-void WaveFunction::evaluateLog(ParticleSet &P)
-{
+void WaveFunction::evaluateLog(ParticleSet &P) {
   constexpr valT czero(0);
-  if (FirstTime)
-  {
-    P.G       = czero;
-    P.L       = czero;
-    LogValue  = Det_up->evaluateLog(P, P.G, P.L);
+  if (FirstTime) {
+    P.G = czero;
+    P.L = czero;
+    LogValue = Det_up->evaluateLog(P, P.G, P.L);
     LogValue += Det_dn->evaluateLog(P, P.G, P.L);
     LogValue += J1->evaluateLog(P, P.G, P.L);
     LogValue += J2->evaluateLog(P, P.G, P.L);
@@ -74,34 +69,26 @@ void WaveFunction::evaluateLog(ParticleSet &P)
   }
 }
 
-WaveFunctionBase::posT WaveFunction::evalGrad(ParticleSet &P, int iat)
-{
-  return ( iat<nelup ? Det_up->evalGrad(P, iat) : Det_dn->evalGrad(P, iat) )
-         + J1->evalGrad(P, iat)
-         + J2->evalGrad(P, iat)
-         + J3->evalGrad(P, iat);
+WaveFunctionBase::posT WaveFunction::evalGrad(ParticleSet &P, int iat) {
+  return (iat < nelup ? Det_up->evalGrad(P, iat) : Det_dn->evalGrad(P, iat)) +
+         J1->evalGrad(P, iat) + J2->evalGrad(P, iat) + J3->evalGrad(P, iat);
 }
 
 WaveFunctionBase::valT WaveFunction::ratioGrad(ParticleSet &P, int iat,
-                                               posT &grad)
-{
-  return ( iat<nelup ? Det_up->ratioGrad(P, iat, grad) : Det_dn->ratioGrad(P, iat, grad) )
-         * J1->ratioGrad(P, iat, grad)
-         * J2->ratioGrad(P, iat, grad)
-         * J3->ratioGrad(P, iat, grad);
+                                               posT &grad) {
+  return (iat < nelup ? Det_up->ratioGrad(P, iat, grad)
+                      : Det_dn->ratioGrad(P, iat, grad)) *
+         J1->ratioGrad(P, iat, grad) * J2->ratioGrad(P, iat, grad) *
+         J3->ratioGrad(P, iat, grad);
 }
 
-WaveFunctionBase::valT WaveFunction::ratio(ParticleSet &P, int iat)
-{
-  return ( iat<nelup ? Det_up->ratio(P, iat) : Det_dn->ratio(P, iat) )
-         * J1->ratio(P, iat)
-         * J2->ratio(P, iat)
-         * J3->ratio(P, iat);
+WaveFunctionBase::valT WaveFunction::ratio(ParticleSet &P, int iat) {
+  return (iat < nelup ? Det_up->ratio(P, iat) : Det_dn->ratio(P, iat)) *
+         J1->ratio(P, iat) * J2->ratio(P, iat) * J3->ratio(P, iat);
 }
 
-void WaveFunction::acceptMove(ParticleSet &P, int iat)
-{
-  if(iat<nelup)
+void WaveFunction::acceptMove(ParticleSet &P, int iat) {
+  if (iat < nelup)
     Det_up->acceptMove(P, iat);
   else
     Det_dn->acceptMove(P, iat);
@@ -112,8 +99,7 @@ void WaveFunction::acceptMove(ParticleSet &P, int iat)
 
 void WaveFunction::restore(int iat) {}
 
-void WaveFunction::evaluateGL(ParticleSet &P)
-{
+void WaveFunction::evaluateGL(ParticleSet &P) {
   constexpr valT czero(0);
   P.G = czero;
   P.L = czero;
@@ -123,4 +109,4 @@ void WaveFunction::evaluateGL(ParticleSet &P)
   J2->evaluateGL(P, P.G, P.L);
   J3->evaluateGL(P, P.G, P.L);
 }
-} // qmcplusplus
+} // namespace qmcplusplus

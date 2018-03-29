@@ -30,11 +30,9 @@
 #include <iostream>
 #include <type_traits>
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
-template <class T, typename Alloc = std::allocator<T>> class Vector
-{
+template <class T, typename Alloc = std::allocator<T>> class Vector {
 public:
   typedef T Type_t;
   typedef T *iterator;
@@ -44,54 +42,50 @@ public:
   typedef Vector<T, Alloc> This_t;
 
   /** constructor with size n*/
-  explicit inline Vector(size_t n = 0) : nLocal(n), nAllocated(0), X(nullptr)
-  {
-    if (n) resize_impl(n);
+  explicit inline Vector(size_t n = 0) : nLocal(n), nAllocated(0), X(nullptr) {
+    if (n)
+      resize_impl(n);
   }
 
   /** constructor with an initialized ref */
   explicit inline Vector(T *ref, size_t n) : nLocal(n), nAllocated(0), X(ref) {}
 
   /** copy constructor */
-  Vector(const Vector &rhs) : nLocal(rhs.nLocal), nAllocated(0), X(nullptr)
-  {
+  Vector(const Vector &rhs) : nLocal(rhs.nLocal), nAllocated(0), X(nullptr) {
     resize_impl(rhs.nLocal);
     std::copy_n(rhs.data(), nLocal, X);
   }
 
   // default assignment operator
-  inline Vector &operator=(const Vector &rhs)
-  {
-    if (this == &rhs) return *this;
-    if (nLocal != rhs.nLocal) resize(rhs.nLocal);
+  inline Vector &operator=(const Vector &rhs) {
+    if (this == &rhs)
+      return *this;
+    if (nLocal != rhs.nLocal)
+      resize(rhs.nLocal);
     std::copy_n(rhs.data(), nLocal, X);
     return *this;
   }
 
   // assignment operator from anther Vector class
   template <typename T1, typename C1>
-  inline Vector &operator=(const Vector<T1, C1> &rhs)
-  {
-    if (std::is_convertible<T1, T>::value)
-    {
-      if (nLocal != rhs.nLocal) resize(rhs.nLocal);
+  inline Vector &operator=(const Vector<T1, C1> &rhs) {
+    if (std::is_convertible<T1, T>::value) {
+      if (nLocal != rhs.nLocal)
+        resize(rhs.nLocal);
       std::copy_n(rhs.data(), nLocal, X);
     }
     return *this;
   }
 
   // assigment operator to enable PETE
-  template <class RHS> inline Vector &operator=(const RHS &rhs)
-  {
+  template <class RHS> inline Vector &operator=(const RHS &rhs) {
     assign(*this, rhs);
     return *this;
   }
 
   //! Destructor
-  virtual ~Vector()
-  {
-    if (nAllocated)
-    {
+  virtual ~Vector() {
+    if (nAllocated) {
       mAllocator.deallocate(X, nAllocated);
     }
   }
@@ -100,8 +94,7 @@ public:
   inline size_t size() const { return nLocal; }
 
   /// resize
-  inline void resize(size_t n)
-  {
+  inline void resize(size_t n) {
     if (nLocal > nAllocated)
       throw std::runtime_error(
           "Resize not allowed on Vector constructed by initialized memory.");
@@ -146,30 +139,26 @@ private:
   /// allocator
   Alloc mAllocator;
 
-  inline void resize_impl(size_t n)
-  {
-    if (nAllocated)
-    {
+  inline void resize_impl(size_t n) {
+    if (nAllocated) {
       mAllocator.deallocate(X, nAllocated);
     }
-    X          = mAllocator.allocate(n);
-    nLocal     = n;
+    X = mAllocator.allocate(n);
+    nLocal = n;
     nAllocated = n;
   }
 };
 
-} // end-of qmcplusplus
+} // namespace qmcplusplus
 
 #include "Numerics/OhmmsPETE/OhmmsVectorOperators.h"
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 //-----------------------------------------------------------------------------
 // We need to specialize CreateLeaf<T> for our class, so that operators
 // know what to stick in the leaves of the expression tree.
 //-----------------------------------------------------------------------------
-template <class T, class C> struct CreateLeaf<Vector<T, C>>
-{
+template <class T, class C> struct CreateLeaf<Vector<T, C>> {
   typedef Reference<Vector<T, C>> Leaf_t;
   inline static Leaf_t make(const Vector<T, C> &a) { return Leaf_t(a); }
 };
@@ -179,8 +168,7 @@ template <class T, class C> struct CreateLeaf<Vector<T, C>>
 // the vector with a stored value. Then, we supply LeafFunctor specializations
 // for Scalar<T> and STL vector leaves.
 //-----------------------------------------------------------------------------
-class SizeLeaf
-{
+class SizeLeaf {
 public:
   SizeLeaf(int s) : size_m(s) {}
   SizeLeaf(const SizeLeaf &model) : size_m(model.size_m) {}
@@ -190,21 +178,17 @@ private:
   int size_m;
 };
 
-template <class T> struct LeafFunctor<Scalar<T>, SizeLeaf>
-{
+template <class T> struct LeafFunctor<Scalar<T>, SizeLeaf> {
   typedef bool Type_t;
-  inline static bool apply(const Scalar<T> &, const SizeLeaf &)
-  {
+  inline static bool apply(const Scalar<T> &, const SizeLeaf &) {
     // Scalars always conform.
     return true;
   }
 };
 
-template <class T, class C> struct LeafFunctor<Vector<T, C>, SizeLeaf>
-{
+template <class T, class C> struct LeafFunctor<Vector<T, C>, SizeLeaf> {
   typedef bool Type_t;
-  inline static bool apply(const Vector<T, C> &v, const SizeLeaf &s)
-  {
+  inline static bool apply(const Vector<T, C> &v, const SizeLeaf &s) {
     return s(v.size());
   }
 };
@@ -214,11 +198,9 @@ template <class T, class C> struct LeafFunctor<Vector<T, C>, SizeLeaf>
 // (It's already defined for Scalar values.)
 //-----------------------------------------------------------------------------
 
-template <class T, class C> struct LeafFunctor<Vector<T, C>, EvalLeaf1>
-{
+template <class T, class C> struct LeafFunctor<Vector<T, C>, EvalLeaf1> {
   typedef T Type_t;
-  inline static Type_t apply(const Vector<T, C> &vec, const EvalLeaf1 &f)
-  {
+  inline static Type_t apply(const Vector<T, C> &vec, const EvalLeaf1 &f) {
     return vec[f.val1()];
   }
 };
@@ -228,14 +210,11 @@ template <class T, class C> struct LeafFunctor<Vector<T, C>, EvalLeaf1>
 //////////////////////////////////////////////////////////////////////////////////
 template <class T, class C, class Op, class RHS>
 inline void evaluate(Vector<T, C> &lhs, const Op &op,
-                     const Expression<RHS> &rhs)
-{
-  if (forEach(rhs, SizeLeaf(lhs.size()), AndCombine()))
-  {
+                     const Expression<RHS> &rhs) {
+  if (forEach(rhs, SizeLeaf(lhs.size()), AndCombine())) {
     // We get here if the vectors on the RHS are the same size as those on
     // the LHS.
-    for (int i = 0; i < lhs.size(); ++i)
-    {
+    for (int i = 0; i < lhs.size(); ++i) {
       // The actual assignment operation is performed here.
       // PETE operator tags all define operator() to perform the operation.
       // (In this case op performs an assignment.) forEach is used
@@ -245,9 +224,7 @@ inline void evaluate(Vector<T, C> &lhs, const Op &op,
       // to combine values together.
       op(lhs[i], forEach(rhs, EvalLeaf1(i), OpCombine()));
     }
-  }
-  else
-  {
+  } else {
     std::cerr << "Error: LHS and RHS don't conform in OhmmsVector."
               << std::endl;
     abort();
@@ -255,19 +232,19 @@ inline void evaluate(Vector<T, C> &lhs, const Op &op,
 }
 // I/O
 template <class T, class C>
-std::ostream &operator<<(std::ostream &out, const Vector<T, C> &rhs)
-{
-  for (int i = 0; i < rhs.size(); i++) out << rhs[i] << std::endl;
+std::ostream &operator<<(std::ostream &out, const Vector<T, C> &rhs) {
+  for (int i = 0; i < rhs.size(); i++)
+    out << rhs[i] << std::endl;
   return out;
 }
 
 template <class T, class C>
-std::istream &operator>>(std::istream &is, Vector<T, C> &rhs)
-{
+std::istream &operator>>(std::istream &is, Vector<T, C> &rhs) {
   // printTinyVector<TinyVector<T,D> >::print(out,rhs);
-  for (int i = 0; i < rhs.size(); i++) is >> rhs[i];
+  for (int i = 0; i < rhs.size(); i++)
+    is >> rhs[i];
   return is;
 }
-}
+} // namespace qmcplusplus
 
 #endif // OHMMS_PARTICLEATTRIB_PEPE_H

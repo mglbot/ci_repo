@@ -37,8 +37,7 @@
 #include <Utilities/PooledData.h>
 #include <Numerics/Containers.h>
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
 /// forward declaration of DistanceTableData
 class DistanceTableData;
@@ -52,8 +51,7 @@ class DistanceTableData;
  * - Variance   variance
  * - LivingFraction fraction of walkers alive each step.
  */
-template <typename T> struct MCDataType
-{
+template <typename T> struct MCDataType {
   T NumSamples;
   T RNSamples;
   T Weight;
@@ -75,8 +73,7 @@ template <typename T> struct MCDataType
  * decompositions
  * for efficient evaluations for the interactions with a finite cutoff.
  */
-class ParticleSet : public QMCTraits, public PtclOnLatticeTraits
-{
+class ParticleSet : public QMCTraits, public PtclOnLatticeTraits {
 public:
   /// walker type
   typedef Walker<QMCTraits, PtclOnLatticeTraits> Walker_t;
@@ -256,15 +253,13 @@ public:
 
   /** get species name of particle i
    */
-  inline const std::string &species_from_index(int i)
-  {
+  inline const std::string &species_from_index(int i) {
     return mySpecies.speciesName[GroupID[i]];
   }
 
   inline int getTotalNum() const { return TotalNum; }
 
-  inline void resize(int numPtcl)
-  {
+  inline void resize(int numPtcl) {
     TotalNum = numPtcl;
 
     R.resize(numPtcl);
@@ -280,18 +275,16 @@ public:
     RSoA.resize(numPtcl);
   }
 
-  inline void assign(const ParticleSet &ptclin)
-  {
+  inline void assign(const ParticleSet &ptclin) {
     TotalNum = ptclin.getTotalNum();
     resize(TotalNum);
-    Lattice          = ptclin.Lattice;
+    Lattice = ptclin.Lattice;
     PrimitiveLattice = ptclin.PrimitiveLattice;
-    R.InUnit         = ptclin.R.InUnit;
-    R                = ptclin.R;
-    ID               = ptclin.ID;
-    GroupID          = ptclin.GroupID;
-    if (ptclin.SubPtcl.size())
-    {
+    R.InUnit = ptclin.R.InUnit;
+    R = ptclin.R;
+    ID = ptclin.ID;
+    GroupID = ptclin.GroupID;
+    if (ptclin.SubPtcl.size()) {
       SubPtcl.resize(ptclin.SubPtcl.size());
       SubPtcl = ptclin.SubPtcl;
     }
@@ -322,5 +315,5 @@ protected:
   /// array to handle a group of distinct particles per species
   ParticleIndex_t SubPtcl;
 };
-}
+} // namespace qmcplusplus
 #endif

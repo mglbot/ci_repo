@@ -25,13 +25,11 @@
 #include <Numerics/Spline2/MultiBsplineData.hpp>
 #include <stdlib.h>
 
-namespace miniqmcreference
-{
+namespace miniqmcreference {
 
 using namespace qmcplusplus;
 
-template <typename T> struct MultiBsplineRef
-{
+template <typename T> struct MultiBsplineRef {
   /// define the einsplie object type
   using spliner_type = typename bspline_traits<T, 3>::SplineType;
 
@@ -45,21 +43,23 @@ template <typename T> struct MultiBsplineRef
    * evaluate_vgh(r,psi,grad,hess,ip).
    */
 
-  void evaluate_v(const spliner_type *restrict spline_m, T x, T y, T z, T *restrict vals,
-                  size_t num_splines) const;
+  void evaluate_v(const spliner_type *restrict spline_m, T x, T y, T z,
+                  T *restrict vals, size_t num_splines) const;
 
-  void evaluate_vgl(const spliner_type *restrict spline_m, T x, T y, T z, T *restrict vals, T *restrict grads,
-                    T *restrict lapl, size_t num_splines) const;
+  void evaluate_vgl(const spliner_type *restrict spline_m, T x, T y, T z,
+                    T *restrict vals, T *restrict grads, T *restrict lapl,
+                    size_t num_splines) const;
 
-  void evaluate_vgh(const spliner_type *restrict spline_m, T x, T y, T z, T *restrict vals, T *restrict grads,
-                    T *restrict hess, size_t num_splines) const;
+  void evaluate_vgh(const spliner_type *restrict spline_m, T x, T y, T z,
+                    T *restrict vals, T *restrict grads, T *restrict hess,
+                    size_t num_splines) const;
 };
 
 template <typename T>
-inline void MultiBsplineRef<T>::evaluate_v(const spliner_type *restrict spline_m,
-                                           T x, T y, T z, T *restrict vals,
-                                           size_t num_splines) const
-{
+inline void
+MultiBsplineRef<T>::evaluate_v(const spliner_type *restrict spline_m, T x, T y,
+                               T z, T *restrict vals,
+                               size_t num_splines) const {
   x -= spline_m->x_grid.start;
   y -= spline_m->y_grid.start;
   z -= spline_m->z_grid.start;
@@ -85,8 +85,7 @@ inline void MultiBsplineRef<T>::evaluate_v(const spliner_type *restrict spline_m
   std::fill(vals, vals + num_splines, zero);
 
   for (size_t i = 0; i < 4; i++)
-    for (size_t j = 0; j < 4; j++)
-    {
+    for (size_t j = 0; j < 4; j++) {
       const T pre00 = a[i] * b[j];
       const T *restrict coefs =
           spline_m->coefs + (ix + i) * xs + (iy + j) * ys + iz * zs;
@@ -99,11 +98,9 @@ inline void MultiBsplineRef<T>::evaluate_v(const spliner_type *restrict spline_m
 
 template <typename T>
 inline void
-MultiBsplineRef<T>::evaluate_vgl(const spliner_type *restrict spline_m,
-                                 T x, T y, T z, T *restrict vals,
-                                 T *restrict grads, T *restrict lapl,
-                                 size_t num_splines) const
-{
+MultiBsplineRef<T>::evaluate_vgl(const spliner_type *restrict spline_m, T x,
+                                 T y, T z, T *restrict vals, T *restrict grads,
+                                 T *restrict lapl, size_t num_splines) const {
   x -= spline_m->x_grid.start;
   y -= spline_m->y_grid.start;
   z -= spline_m->z_grid.start;
@@ -144,8 +141,7 @@ MultiBsplineRef<T>::evaluate_vgl(const spliner_type *restrict spline_m,
   std::fill(lz, lz + num_splines, T());
 
   for (int i = 0; i < 4; i++)
-    for (int j = 0; j < 4; j++)
-    {
+    for (int j = 0; j < 4; j++) {
 
       const T pre20 = d2a[i] * b[j];
       const T pre10 = da[i] * b[j];
@@ -156,14 +152,13 @@ MultiBsplineRef<T>::evaluate_vgl(const spliner_type *restrict spline_m,
 
       const T *restrict coefs =
           spline_m->coefs + (ix + i) * xs + (iy + j) * ys + iz * zs;
-      const T *restrict coefszs  = coefs + zs;
+      const T *restrict coefszs = coefs + zs;
       const T *restrict coefs2zs = coefs + 2 * zs;
       const T *restrict coefs3zs = coefs + 3 * zs;
 
-      for (int n = 0; n < num_splines; n++)
-      {
-        const T coefsv    = coefs[n];
-        const T coefsvzs  = coefszs[n];
+      for (int n = 0; n < num_splines; n++) {
+        const T coefsv = coefs[n];
+        const T coefsvzs = coefszs[n];
         const T coefsv2zs = coefs2zs[n];
         const T coefsv3zs = coefs3zs[n];
 
@@ -191,8 +186,7 @@ MultiBsplineRef<T>::evaluate_vgl(const spliner_type *restrict spline_m,
   const T dyInv2 = dyInv * dyInv;
   const T dzInv2 = dzInv * dzInv;
 
-  for (int n = 0; n < num_splines; n++)
-  {
+  for (int n = 0; n < num_splines; n++) {
     gx[n] *= dxInv;
     gy[n] *= dyInv;
     gz[n] *= dzInv;
@@ -202,11 +196,9 @@ MultiBsplineRef<T>::evaluate_vgl(const spliner_type *restrict spline_m,
 
 template <typename T>
 inline void
-MultiBsplineRef<T>::evaluate_vgh(const spliner_type *restrict spline_m,
-                                 T x, T y, T z, T *restrict vals,
-                                 T *restrict grads, T *restrict hess,
-                                 size_t num_splines) const
-{
+MultiBsplineRef<T>::evaluate_vgh(const spliner_type *restrict spline_m, T x,
+                                 T y, T z, T *restrict vals, T *restrict grads,
+                                 T *restrict hess, size_t num_splines) const {
 
   int ix, iy, iz;
   T tx, ty, tz;
@@ -255,11 +247,10 @@ MultiBsplineRef<T>::evaluate_vgh(const spliner_type *restrict spline_m,
   std::fill(hzz, hzz + num_splines, T());
 
   for (int i = 0; i < 4; i++)
-    for (int j = 0; j < 4; j++)
-    {
+    for (int j = 0; j < 4; j++) {
       const T *restrict coefs =
           spline_m->coefs + (ix + i) * xs + (iy + j) * ys + iz * zs;
-      const T *restrict coefszs  = coefs + zs;
+      const T *restrict coefszs = coefs + zs;
       const T *restrict coefs2zs = coefs + 2 * zs;
       const T *restrict coefs3zs = coefs + 3 * zs;
 
@@ -271,11 +262,10 @@ MultiBsplineRef<T>::evaluate_vgh(const spliner_type *restrict spline_m,
       const T pre02 = a[i] * d2b[j];
 
       const int iSplitPoint = num_splines;
-      for (int n = 0; n < iSplitPoint; n++)
-      {
+      for (int n = 0; n < iSplitPoint; n++) {
 
-        T coefsv    = coefs[n];
-        T coefsvzs  = coefszs[n];
+        T coefsv = coefs[n];
+        T coefsvzs = coefszs[n];
         T coefsv2zs = coefs2zs[n];
         T coefsv3zs = coefs3zs[n];
 
@@ -302,15 +292,14 @@ MultiBsplineRef<T>::evaluate_vgh(const spliner_type *restrict spline_m,
   const T dxInv = spline_m->x_grid.delta_inv;
   const T dyInv = spline_m->y_grid.delta_inv;
   const T dzInv = spline_m->z_grid.delta_inv;
-  const T dxx   = dxInv * dxInv;
-  const T dyy   = dyInv * dyInv;
-  const T dzz   = dzInv * dzInv;
-  const T dxy   = dxInv * dyInv;
-  const T dxz   = dxInv * dzInv;
-  const T dyz   = dyInv * dzInv;
+  const T dxx = dxInv * dxInv;
+  const T dyy = dyInv * dyInv;
+  const T dzz = dzInv * dzInv;
+  const T dxy = dxInv * dyInv;
+  const T dxz = dxInv * dzInv;
+  const T dyz = dyInv * dzInv;
 
-  for (int n = 0; n < num_splines; n++)
-  {
+  for (int n = 0; n < num_splines; n++) {
     gx[n] *= dxInv;
     gy[n] *= dyInv;
     gz[n] *= dzInv;
@@ -323,5 +312,5 @@ MultiBsplineRef<T>::evaluate_vgh(const spliner_type *restrict spline_m,
   }
 }
 
-} /** qmcplusplus namespace */
+} // namespace miniqmcreference
 #endif

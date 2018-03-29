@@ -131,13 +131,11 @@
 
 class Communicate;
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
 class NewTimer;
 
-enum timer_levels
-{
+enum timer_levels {
   timer_level_none, // The 'none' settting is not for individual timers.
                     // It is for setting a threshold to turn all timers off.
   timer_level_coarse,
@@ -155,8 +153,7 @@ extern bool timer_max_level_exceeded;
 
 // Key for tracking time per stack.  Parametered by size.
 
-template <int N> class StackKeyParam
-{
+template <int N> class StackKeyParam {
 public:
   // The union is for a performance hack
   // Use the array of small types to store the stack of timer id's.
@@ -172,25 +169,19 @@ public:
 
   static const int max_level = sizeof(long int) * N;
 
-  StackKeyParam() : level(0)
-  {
-    for (int j = 0; j < N; j++)
-    {
+  StackKeyParam() : level(0) {
+    for (int j = 0; j < N; j++) {
       long_buckets[j] = 0;
     }
   }
 
   int level;
 
-  void add_id(timer_id_t c1)
-  {
+  void add_id(timer_id_t c1) {
     short_buckets[level] = c1;
-    if (level >= max_level - 1)
-    {
+    if (level >= max_level - 1) {
       timer_max_level_exceeded = true;
-    }
-    else
-    {
+    } else {
       level++;
     }
   }
@@ -199,22 +190,17 @@ public:
 
   timer_id_t get_id(int idx) const { return short_buckets[idx]; }
 
-  bool operator==(const StackKeyParam &rhs)
-  {
+  bool operator==(const StackKeyParam &rhs) {
     bool same = false;
-    for (int j = 0; j < N; j++)
-    {
+    for (int j = 0; j < N; j++) {
       same &= this->long_buckets[j] == rhs.long_buckets[j];
     }
     return same;
   }
 
-  bool operator<(const StackKeyParam &rhs) const
-  {
-    for (int j = 0; j < N; j++)
-    {
-      if (!(this->long_buckets[j] == rhs.long_buckets[j]))
-      {
+  bool operator<(const StackKeyParam &rhs) const {
+    for (int j = 0; j < N; j++) {
+      if (!(this->long_buckets[j] == rhs.long_buckets[j])) {
         return this->long_buckets[j] < rhs.long_buckets[j];
       }
     }
@@ -225,8 +211,7 @@ public:
 // N = 2 gives 16 nesting levels
 typedef StackKeyParam<2> StackKey;
 
-class TimerManagerClass
-{
+class TimerManagerClass {
 protected:
   std::vector<NewTimer *> TimerList;
   std::vector<NewTimer *> CurrentTimerStack;
@@ -243,8 +228,7 @@ public:
 
   TimerManagerClass()
       : timer_threshold(timer_level_coarse), max_timer_id(1),
-        max_timers_exceeded(false)
-  {
+        max_timers_exceeded(false) {
 #ifdef USE_VTUNE_TASKS
     task_domain = __itt_domain_create("QMCPACK");
 #endif
@@ -253,25 +237,17 @@ public:
   NewTimer *createTimer(const std::string &myname,
                         timer_levels mytimer = timer_level_fine);
 
-  void push_timer(NewTimer *t)
-  {
-    {
-      CurrentTimerStack.push_back(t);
-    }
+  void push_timer(NewTimer *t) {
+    { CurrentTimerStack.push_back(t); }
   }
 
-  void pop_timer()
-  {
-    {
-      CurrentTimerStack.pop_back();
-    }
+  void pop_timer() {
+    { CurrentTimerStack.pop_back(); }
   }
 
-  NewTimer *current_timer()
-  {
+  NewTimer *current_timer() {
     NewTimer *current = NULL;
-    if (CurrentTimerStack.size() > 0)
-    {
+    if (CurrentTimerStack.size() > 0) {
       current = CurrentTimerStack.back();
     }
     return current;
@@ -286,22 +262,20 @@ public:
   void print_flat();
   void print_stack();
 
-  XMLNode* output_timing(XMLDocument &doc);
+  XMLNode *output_timing(XMLDocument &doc);
 
   typedef std::map<std::string, int> nameList_t;
   typedef std::vector<double> timeList_t;
   typedef std::vector<long> callList_t;
   typedef std::vector<std::string> names_t;
 
-  struct FlatProfileData
-  {
+  struct FlatProfileData {
     nameList_t nameList;
     timeList_t timeList;
     callList_t callList;
   };
 
-  struct StackProfileData
-  {
+  struct StackProfileData {
     names_t names;
     nameList_t nameList;
     timeList_t timeList;
@@ -322,8 +296,7 @@ public:
 extern TimerManagerClass TimerManager;
 
 /* Timer using omp_get_wtime  */
-class NewTimer
-{
+class NewTimer {
 protected:
   double start_time;
   double total_time;
@@ -350,10 +323,8 @@ public:
   inline void start() {}
   inline void stop() {}
 #else
-  void start()
-  {
-    if (active)
-    {
+  void start() {
+    if (active) {
 
 #ifdef USE_VTUNE_TASKS
       __itt_id parent_task = __itt_null;
@@ -364,23 +335,18 @@ public:
 #ifdef USE_STACK_TIMERS
 #pragma omp master
       {
-        if (manager)
-        {
-          if (this == manager->current_timer())
-          {
+        if (manager) {
+          if (this == manager->current_timer()) {
             std::cerr << "Timer loop: " << name << std::endl;
           }
-          if (parent != manager->current_timer())
-          {
+          if (parent != manager->current_timer()) {
             parent = manager->current_timer();
-            if (parent)
-            {
+            if (parent) {
               current_stack_key = parent->get_stack_key();
               current_stack_key.add_id(timer_id);
             }
           }
-          if (parent == NULL)
-          {
+          if (parent == NULL) {
             current_stack_key = StackKey();
             current_stack_key.add_id(timer_id);
           }
@@ -394,10 +360,8 @@ public:
     }
   }
 
-  void stop()
-  {
-    if (active)
-    {
+  void stop() {
+    if (active) {
 
 #ifdef USE_VTUNE_TASKS
       __itt_task_end(manager->task_domain);
@@ -415,8 +379,7 @@ public:
         per_stack_total_time[current_stack_key] += elapsed;
         per_stack_num_calls[current_stack_key] += 1;
 
-        if (manager)
-        {
+        if (manager) {
           manager->current_timer()->set_parent(NULL);
           manager->pop_timer();
         }
@@ -427,8 +390,7 @@ public:
 #endif
 
 #ifdef USE_STACK_TIMERS
-  std::map<StackKey, double> &get_per_stack_total_time()
-  {
+  std::map<StackKey, double> &get_per_stack_total_time() {
     return per_stack_total_time;
   }
 
@@ -438,8 +400,7 @@ public:
   inline double get_total() const { return total_time; }
 
 #ifdef USE_STACK_TIMERS
-  inline double get_total(const StackKey &key)
-  {
+  inline double get_total(const StackKey &key) {
     return per_stack_total_time[key];
   }
 #endif
@@ -447,8 +408,7 @@ public:
   inline long get_num_calls() const { return num_calls; }
 
 #ifdef USE_STACK_TIMERS
-  inline long get_num_calls(const StackKey &key)
-  {
+  inline long get_num_calls(const StackKey &key) {
     return per_stack_num_calls[key];
   }
 #endif
@@ -459,9 +419,8 @@ public:
 
   inline std::string get_name() const { return name; }
 
-  inline void reset()
-  {
-    num_calls  = 0;
+  inline void reset() {
+    num_calls = 0;
     total_time = 0.0;
   }
 
@@ -484,8 +443,7 @@ public:
 
   void set_active_by_timer_threshold(const timer_levels threshold);
 
-  void set_manager(TimerManagerClass *mymanager)
-  {
+  void set_manager(TimerManagerClass *mymanager) {
 #ifdef USE_STACK_TIMERS
     manager = mymanager;
 #endif
@@ -499,17 +457,16 @@ public:
 };
 
 // Wrapper for timer that starts on construction and stops on destruction
-class ScopedTimer
-{
+class ScopedTimer {
 public:
-  ScopedTimer(NewTimer *t) : timer(t)
-  {
-    if (timer) timer->start();
+  ScopedTimer(NewTimer *t) : timer(t) {
+    if (timer)
+      timer->start();
   }
 
-  ~ScopedTimer()
-  {
-    if (timer) timer->stop();
+  ~ScopedTimer() {
+    if (timer)
+      timer->stop();
   }
 
 private:
@@ -521,8 +478,7 @@ private:
 
 typedef std::vector<NewTimer *> TimerList_t;
 
-template <class T> struct TimerIDName_t
-{
+template <class T> struct TimerIDName_t {
   T id;
   const std::string name;
 };
@@ -533,24 +489,20 @@ template <class T> using TimerNameList_t = std::vector<TimerIDName_t<T>>;
 
 template <class T>
 void setup_timers(TimerList_t &timers, TimerNameList_t<T> timer_list,
-                  timer_levels timer_level = timer_level_fine)
-{
+                  timer_levels timer_level = timer_level_fine) {
   timers.resize(timer_list.size());
-  for (int i = 0; i < timer_list.size(); i++)
-  {
+  for (int i = 0; i < timer_list.size(); i++) {
     timers[timer_list[i].id] =
         TimerManager.createTimer(timer_list[i].name, timer_level);
   }
 }
 #endif
 
-struct TimerComparator
-{
-  inline bool operator()(const NewTimer *a, const NewTimer *b)
-  {
+struct TimerComparator {
+  inline bool operator()(const NewTimer *a, const NewTimer *b) {
     return a->get_name() < b->get_name();
   }
 };
-}
+} // namespace qmcplusplus
 
 #endif

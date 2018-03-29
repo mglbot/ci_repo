@@ -18,7 +18,6 @@
 #include "Numerics/Spline2/bspline_allocator.hpp"
 #include "Numerics/Spline2/einspline_allocator.h"
 
-
 void set_multi_UBspline_3d_d(multi_UBspline_3d_d *spline, int spline_num,
                              double *data);
 
@@ -45,10 +44,8 @@ UBspline_3d_d *einspline_create_UBspline_3d_d(Ugrid x_grid, Ugrid y_grid,
                                               BCtype_d yBC, BCtype_d zBC,
                                               double *data);
 
-namespace qmcplusplus
-{
-namespace einspline
-{
+namespace qmcplusplus {
+namespace einspline {
 
 Allocator::Allocator() : Policy(0) {}
 
@@ -57,8 +54,7 @@ Allocator::~Allocator() {}
 multi_UBspline_3d_s *Allocator::allocateMultiBspline(Ugrid x_grid, Ugrid y_grid,
                                                      Ugrid z_grid, BCtype_s xBC,
                                                      BCtype_s yBC, BCtype_s zBC,
-                                                     int num_splines)
-{
+                                                     int num_splines) {
   return einspline_create_multi_UBspline_3d_s(x_grid, y_grid, z_grid, xBC, yBC,
                                               zBC, num_splines);
 }
@@ -66,8 +62,7 @@ multi_UBspline_3d_s *Allocator::allocateMultiBspline(Ugrid x_grid, Ugrid y_grid,
 multi_UBspline_3d_d *Allocator::allocateMultiBspline(Ugrid x_grid, Ugrid y_grid,
                                                      Ugrid z_grid, BCtype_d xBC,
                                                      BCtype_d yBC, BCtype_d zBC,
-                                                     int num_splines)
-{
+                                                     int num_splines) {
   return einspline_create_multi_UBspline_3d_d(x_grid, y_grid, z_grid, xBC, yBC,
                                               zBC, num_splines);
 }
@@ -75,8 +70,7 @@ multi_UBspline_3d_d *Allocator::allocateMultiBspline(Ugrid x_grid, Ugrid y_grid,
 UBspline_3d_d *Allocator::allocateUBspline(Ugrid x_grid, Ugrid y_grid,
                                            Ugrid z_grid, BCtype_d xBC,
                                            BCtype_d yBC, BCtype_d zBC,
-                                           double *data)
-{
+                                           double *data) {
   return einspline_create_UBspline_3d_d(x_grid, y_grid, z_grid, xBC, yBC, zBC,
                                         data);
 }
@@ -84,8 +78,7 @@ UBspline_3d_d *Allocator::allocateUBspline(Ugrid x_grid, Ugrid y_grid,
 UBspline_3d_s *Allocator::allocateUBspline(Ugrid x_grid, Ugrid y_grid,
                                            Ugrid z_grid, BCtype_s xBC,
                                            BCtype_s yBC, BCtype_s zBC,
-                                           float *data)
-{
+                                           float *data) {
   return einspline_create_UBspline_3d_s(x_grid, y_grid, z_grid, xBC, yBC, zBC,
                                         data);
 }
@@ -99,18 +92,17 @@ UBspline_3d_s *Allocator::allocateUBspline(Ugrid x_grid, Ugrid y_grid,
  * single-precision spline.
  * This is incomplete and should be integrated with the initialization
  */
-void Allocator::set(double *indata, multi_UBspline_3d_s *spline, int i)
-{
+void Allocator::set(double *indata, multi_UBspline_3d_s *spline, int i) {
   int BaseOffset[] = {0, 0, 0};
-  int BaseN[]      = {spline->x_grid.num + 3, spline->y_grid.num + 3,
+  int BaseN[] = {spline->x_grid.num + 3, spline->y_grid.num + 3,
                  spline->z_grid.num + 3};
   BCtype_d xBC_d, yBC_d, zBC_d;
-  xBC_d.lCode            = spline->xBC.lCode;
-  xBC_d.rCode            = spline->xBC.rCode;
-  yBC_d.lCode            = spline->yBC.lCode;
-  yBC_d.rCode            = spline->yBC.rCode;
-  zBC_d.lCode            = spline->zBC.lCode;
-  zBC_d.rCode            = spline->zBC.rCode;
+  xBC_d.lCode = spline->xBC.lCode;
+  xBC_d.rCode = spline->xBC.rCode;
+  yBC_d.lCode = spline->yBC.lCode;
+  yBC_d.rCode = spline->yBC.rCode;
+  zBC_d.lCode = spline->zBC.lCode;
+  zBC_d.rCode = spline->zBC.rCode;
   UBspline_3d_d *singleS = einspline_create_UBspline_3d_d(
       spline->x_grid, spline->y_grid, spline->z_grid, xBC_d, yBC_d, zBC_d,
       indata);
@@ -119,20 +111,17 @@ void Allocator::set(double *indata, multi_UBspline_3d_s *spline, int i)
   free(singleS);
 }
 
-void Allocator::set(double *indata, multi_UBspline_3d_d *spline, int i)
-{
+void Allocator::set(double *indata, multi_UBspline_3d_d *spline, int i) {
   set_multi_UBspline_3d_d(spline, i, indata);
 }
 
-void Allocator::set(float *indata, multi_UBspline_3d_s *spline, int i)
-{
+void Allocator::set(float *indata, multi_UBspline_3d_s *spline, int i) {
   set_multi_UBspline_3d_s(spline, i, indata);
 }
 
-void Allocator::copy(multi_UBspline_3d_d *in, multi_UBspline_3d_s *out)
-{
+void Allocator::copy(multi_UBspline_3d_d *in, multi_UBspline_3d_s *out) {
   // Do we ever need this????
   // APP_ABORT("Not done yet with Allocator::copy(in,out)");
 }
-}
-}
+} // namespace einspline
+} // namespace qmcplusplus

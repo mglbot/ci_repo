@@ -35,8 +35,7 @@
 #include "Utilities/PooledData.h"
 #include <assert.h>
 #include <deque>
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
 /** an enum denoting index of physical properties
  *
@@ -44,8 +43,7 @@ namespace qmcplusplus
  * When a new enum is needed, modify ParticleSet::initPropertyList to match the
  * list
  */
-enum
-{
+enum {
   LOGPSI = 0,      /*!< log(std::abs(psi)) instead of square of the many-body
                       wavefunction \f$|\Psi|^2\f$ */
   SIGN,            /*!< value of the many-body wavefunction \f$\Psi(\{R\})\f$ */
@@ -75,12 +73,8 @@ enum
  * index and second index >=NUMPROPERTIES.
  * - DataSet : anonymous container.
  */
-template <typename t_traits, typename p_traits> struct Walker
-{
-  enum
-  {
-    DIM = t_traits::DIM
-  };
+template <typename t_traits, typename p_traits> struct Walker {
+  enum { DIM = t_traits::DIM };
   /** typedef for real data type */
   typedef typename t_traits::RealType RealType;
   /** typedef for estimator real data type */
@@ -128,26 +122,26 @@ template <typename t_traits, typename p_traits> struct Walker
   PropertyContainer_t Properties;
 
   /// create a walker for n-particles
-  inline explicit Walker(int nptcl = 0)
-  {
-    ID           = 0;
-    ParentID     = 0;
-    Generation   = 0;
-    Age          = 0;
-    Weight       = 1.0;
+  inline explicit Walker(int nptcl = 0) {
+    ID = 0;
+    ParentID = 0;
+    Generation = 0;
+    Age = 0;
+    Weight = 1.0;
     Multiplicity = 1.0;
     Properties.resize(1, NUMPROPERTIES);
-    if (nptcl > 0) resize(nptcl);
+    if (nptcl > 0)
+      resize(nptcl);
   }
 
   inline Walker(const Walker &a) = default;
   inline ~Walker() {}
 
   /// assignment operator
-  inline Walker &operator=(const Walker &a)
-  {
+  inline Walker &operator=(const Walker &a) {
     // make deep copy
-    if (this != &a) makeCopy(a);
+    if (this != &a)
+      makeCopy(a);
     return *this;
   }
 
@@ -158,16 +152,16 @@ template <typename t_traits, typename p_traits> struct Walker
   inline void resize(int nptcl) { R.resize(nptcl); }
 
   /// copy the content of a walker
-  inline void makeCopy(const Walker &a)
-  {
-    ID           = a.ID;
-    ParentID     = a.ParentID;
-    Generation   = a.Generation;
-    Age          = a.Age;
-    Weight       = a.Weight;
+  inline void makeCopy(const Walker &a) {
+    ID = a.ID;
+    ParentID = a.ParentID;
+    Generation = a.Generation;
+    Age = a.Age;
+    Weight = a.Weight;
     Multiplicity = a.Multiplicity;
-    if (R.size() != a.R.size()) resize(a.R.size());
-    R       = a.R;
+    if (R.size() != a.R.size())
+      resize(a.R.size());
+    R = a.R;
     DataSet = a.DataSet;
   }
 
@@ -175,8 +169,7 @@ template <typename t_traits, typename p_traits> struct Walker
    *
    * ID, Age, Properties, R, Drift, DataSet is packed
    */
-  inline size_t byteSize()
-  {
+  inline size_t byteSize() {
     size_t bsize = 0;
     return bsize;
   }
@@ -187,14 +180,13 @@ template <typename t_traits, typename p_traits> struct Walker
 };
 
 template <class RealType, class PA>
-std::ostream &operator<<(std::ostream &out, const Walker<RealType, PA> &rhs)
-{
+std::ostream &operator<<(std::ostream &out, const Walker<RealType, PA> &rhs) {
   copy(rhs.Properties.begin(), rhs.Properties.end(),
        std::ostream_iterator<double>(out, " "));
   out << std::endl;
   out << rhs.R;
   return out;
 }
-}
+} // namespace qmcplusplus
 
 #endif

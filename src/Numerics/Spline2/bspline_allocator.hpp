@@ -19,13 +19,10 @@
 #include <Numerics/Spline2/bspline_traits.hpp>
 #include "Numerics/Spline2/einspline_allocator.h"
 
-namespace qmcplusplus
-{
-namespace einspline
-{
+namespace qmcplusplus {
+namespace einspline {
 
-class Allocator
-{
+class Allocator {
   /// Setting the allocation policy: default is using aligned allocator
   int Policy;
 
@@ -41,8 +38,7 @@ public:
   /// destructor
   ~Allocator();
 
-  template <typename SplineType> void destroy(SplineType *spline)
-  {
+  template <typename SplineType> void destroy(SplineType *spline) {
     einspline_free(spline->coefs);
     free(spline);
   }
@@ -116,19 +112,18 @@ public:
 template <typename T, typename ValT, typename IntT>
 typename bspline_traits<T, 3>::SplineType *
 Allocator::createMultiBspline(T dummy, ValT &start, ValT &end, IntT &ng,
-                              bc_code bc, int num_splines)
-{
+                              bc_code bc, int num_splines) {
   Ugrid x_grid, y_grid, z_grid;
   typename bspline_traits<T, 3>::BCType xBC, yBC, zBC;
   x_grid.start = start[0];
-  x_grid.end   = end[0];
-  x_grid.num   = ng[0];
+  x_grid.end = end[0];
+  x_grid.num = ng[0];
   y_grid.start = start[1];
-  y_grid.end   = end[1];
-  y_grid.num   = ng[1];
+  y_grid.end = end[1];
+  y_grid.num = ng[1];
   z_grid.start = start[2];
-  z_grid.end   = end[2];
-  z_grid.num   = ng[2];
+  z_grid.end = end[2];
+  z_grid.num = ng[2];
   xBC.lCode = xBC.rCode = bc;
   yBC.lCode = yBC.rCode = bc;
   zBC.lCode = zBC.rCode = bc;
@@ -138,19 +133,19 @@ Allocator::createMultiBspline(T dummy, ValT &start, ValT &end, IntT &ng,
 
 template <typename ValT, typename IntT, typename T>
 typename bspline_traits<T, 3>::SingleSplineType *
-Allocator::createUBspline(ValT &start, ValT &end, IntT &ng, bc_code bc, T *data)
-{
+Allocator::createUBspline(ValT &start, ValT &end, IntT &ng, bc_code bc,
+                          T *data) {
   Ugrid x_grid, y_grid, z_grid;
   typename bspline_traits<T, 3>::BCType xBC, yBC, zBC;
   x_grid.start = start[0];
-  x_grid.end   = end[0];
-  x_grid.num   = ng[0];
+  x_grid.end = end[0];
+  x_grid.num = ng[0];
   y_grid.start = start[1];
-  y_grid.end   = end[1];
-  y_grid.num   = ng[1];
+  y_grid.end = end[1];
+  y_grid.num = ng[1];
   z_grid.start = start[2];
-  z_grid.end   = end[2];
-  z_grid.num   = ng[2];
+  z_grid.end = end[2];
+  z_grid.num = ng[2];
   xBC.lCode = xBC.rCode = bc;
   yBC.lCode = yBC.rCode = bc;
   zBC.lCode = zBC.rCode = bc;
@@ -159,34 +154,31 @@ Allocator::createUBspline(ValT &start, ValT &end, IntT &ng, bc_code bc, T *data)
 
 template <typename UBT, typename MBT>
 void Allocator::copy(UBT *single, MBT *multi, int i, const int *offset,
-                     const int *N)
-{
+                     const int *N) {
   typedef typename bspline_type<MBT>::value_type out_type;
   typedef typename bspline_type<UBT>::value_type in_type;
-  intptr_t x_stride_in  = single->x_stride;
-  intptr_t y_stride_in  = single->y_stride;
+  intptr_t x_stride_in = single->x_stride;
+  intptr_t y_stride_in = single->y_stride;
   intptr_t x_stride_out = multi->x_stride;
   intptr_t y_stride_out = multi->y_stride;
   intptr_t z_stride_out = multi->z_stride;
-  intptr_t offset0      = static_cast<intptr_t>(offset[0]);
-  intptr_t offset1      = static_cast<intptr_t>(offset[1]);
-  intptr_t offset2      = static_cast<intptr_t>(offset[2]);
+  intptr_t offset0 = static_cast<intptr_t>(offset[0]);
+  intptr_t offset1 = static_cast<intptr_t>(offset[1]);
+  intptr_t offset2 = static_cast<intptr_t>(offset[2]);
   const intptr_t istart = static_cast<intptr_t>(i);
   const intptr_t n0 = N[0], n1 = N[1], n2 = N[2];
   for (intptr_t ix = 0; ix < n0; ++ix)
-    for (intptr_t iy = 0; iy < n1; ++iy)
-    {
+    for (intptr_t iy = 0; iy < n1; ++iy) {
       out_type *restrict out =
           multi->coefs + ix * x_stride_out + iy * y_stride_out + istart;
       const in_type *restrict in = single->coefs +
                                    (ix + offset0) * x_stride_in +
                                    (iy + offset1) * y_stride_in + offset2;
-      for (intptr_t iz = 0; iz < n2; ++iz)
-      {
+      for (intptr_t iz = 0; iz < n2; ++iz) {
         out[iz * z_stride_out] = static_cast<out_type>(in[iz]);
       }
     }
 }
-}
-}
+} // namespace einspline
+} // namespace qmcplusplus
 #endif

@@ -16,13 +16,10 @@
 #ifndef OHMMS_MATRIXOPERATOR_H
 #define OHMMS_MATRIXOPERATOR_H
 
-
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
 template <class T1, class C1, class RHS>
-inline Matrix<T1, C1> &assign(Matrix<T1, C1> &lhs, const RHS &rhs)
-{
+inline Matrix<T1, C1> &assign(Matrix<T1, C1> &lhs, const RHS &rhs) {
   typedef typename CreateLeaf<RHS>::Leaf_t Leaf_t;
   evaluate(lhs, OpAssign(),
            MakeReturn<Leaf_t>::make(CreateLeaf<RHS>::make(rhs)));
@@ -30,8 +27,7 @@ inline Matrix<T1, C1> &assign(Matrix<T1, C1> &lhs, const RHS &rhs)
 }
 
 template <class T1, class C1, class RHS>
-inline Matrix<T1, C1> &operator+=(Matrix<T1, C1> &lhs, const RHS &rhs)
-{
+inline Matrix<T1, C1> &operator+=(Matrix<T1, C1> &lhs, const RHS &rhs) {
   typedef typename CreateLeaf<RHS>::Leaf_t Leaf_t;
   evaluate(lhs, OpAddAssign(),
            MakeReturn<Leaf_t>::make(CreateLeaf<RHS>::make(rhs)));
@@ -39,8 +35,7 @@ inline Matrix<T1, C1> &operator+=(Matrix<T1, C1> &lhs, const RHS &rhs)
 }
 
 template <class T1, class C1, class RHS>
-inline Matrix<T1, C1> &operator-=(Matrix<T1, C1> &lhs, const RHS &rhs)
-{
+inline Matrix<T1, C1> &operator-=(Matrix<T1, C1> &lhs, const RHS &rhs) {
   typedef typename CreateLeaf<RHS>::Leaf_t Leaf_t;
   evaluate(lhs, OpSubtractAssign(),
            MakeReturn<Leaf_t>::make(CreateLeaf<RHS>::make(rhs)));
@@ -48,15 +43,13 @@ inline Matrix<T1, C1> &operator-=(Matrix<T1, C1> &lhs, const RHS &rhs)
 }
 
 template <class T1, class C1, class RHS>
-inline Matrix<T1, C1> &operator*=(Matrix<T1, C1> &lhs, const RHS &rhs)
-{
+inline Matrix<T1, C1> &operator*=(Matrix<T1, C1> &lhs, const RHS &rhs) {
   typedef typename CreateLeaf<RHS>::Leaf_t Leaf_t;
   evaluate(lhs, OpMultiplyAssign(),
            MakeReturn<Leaf_t>::make(CreateLeaf<RHS>::make(rhs)));
   return lhs;
 }
 
-}
+} // namespace qmcplusplus
 
 #endif // OHMMS_MATRIXOPERATOR_H
-

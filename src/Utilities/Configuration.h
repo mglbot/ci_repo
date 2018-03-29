@@ -31,10 +31,10 @@
 #include <Particle/ParticleAttrib.h>
 #include <Utilities/OutputManager.h>
 
-#define APP_ABORT(msg)                                            \
-  {                                                               \
-    std::cerr << "Fatal Error. Aborting at " << msg << std::endl; \
-    exit(1);                                                      \
+#define APP_ABORT(msg)                                                         \
+  {                                                                            \
+    std::cerr << "Fatal Error. Aborting at " << msg << std::endl;              \
+    exit(1);                                                                   \
   }
 
 #if defined(ENABLE_OPENMP)
@@ -52,22 +52,20 @@ inline omp_int_t omp_get_num_threads() { return 1; }
 //#define DEBUG_MEMORY(msg) std::cerr << "<<<< " << msg << std::endl;
 
 #if defined(DEBUG_PSIBUFFER_ON)
-#define DEBUG_PSIBUFFER(who, msg)                              \
-  std::cerr << "PSIBUFFER " << who << " " << msg << std::endl; \
+#define DEBUG_PSIBUFFER(who, msg)                                              \
+  std::cerr << "PSIBUFFER " << who << " " << msg << std::endl;                 \
   std::cerr.flush();
 #else
 #define DEBUG_PSIBUFFER(who, msg)
 #endif
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
 /** traits for the common particle attributes
  *
  *This is an alternative to the global typedefs.
  */
-struct PtclAttribTraits
-{
+struct PtclAttribTraits {
   // clang-format off
   typedef int                                                     Index_t;
   typedef ParticleAttrib<Index_t>                                 ParticleIndex_t;
@@ -81,8 +79,7 @@ struct PtclAttribTraits
  *
  *typedefs for the QMC data types
  */
-struct QMCTraits
-{
+struct QMCTraits {
   // clang-format off
   enum {DIM = OHMMS_DIM};
   typedef OHMMS_INDEXTYPE                IndexType;
@@ -102,8 +99,7 @@ struct QMCTraits
 
 /** Particle traits to use UniformGridLayout for the ParticleLayout.
  */
-struct PtclOnLatticeTraits
-{
+struct PtclOnLatticeTraits {
   // clang-format off
   typedef CrystalLattice<OHMMS_PRECISION,3,OHMMS_ORTHO>  ParticleLayout_t;
 
@@ -132,7 +128,6 @@ struct PtclOnLatticeTraits
   // clang-format on
 };
 
-
-}
+} // namespace qmcplusplus
 
 #endif

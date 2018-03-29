@@ -22,14 +22,12 @@
  * @file OneBodyJastrow.h
  */
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
 /** @ingroup WaveFunctionComponent
  *  @brief Specialization for one-body Jastrow function using multiple functors
  */
-template <class FT> struct OneBodyJastrow : public WaveFunctionComponentBase
-{
+template <class FT> struct OneBodyJastrow : public WaveFunctionComponentBase {
   /// alias FuncType
   using FuncType = FT;
   /// type of each component U, dU, d2U;
@@ -62,29 +60,26 @@ template <class FT> struct OneBodyJastrow : public WaveFunctionComponentBase
   /// Container for \f$F[ig*NumGroups+jg]\f$
   std::vector<FT *> F;
 
-  OneBodyJastrow(const ParticleSet &ions, ParticleSet &els) : Ions(ions)
-  {
+  OneBodyJastrow(const ParticleSet &ions, ParticleSet &els) : Ions(ions) {
     initalize(els);
-    myTableID                 = els.addTable(ions, DT_SOA);
+    myTableID = els.addTable(ions, DT_SOA);
     WaveFunctionComponentName = "OneBodyJastrow";
   }
 
   OneBodyJastrow(const OneBodyJastrow &rhs) = delete;
 
-  ~OneBodyJastrow()
-  {
+  ~OneBodyJastrow() {
     for (int i = 0; i < F.size(); ++i)
-      if (F[i] != nullptr) delete F[i];
+      if (F[i] != nullptr)
+        delete F[i];
   }
 
   /* initialize storage */
-  void initalize(ParticleSet &els)
-  {
-    Nions     = Ions.getTotalNum();
+  void initalize(ParticleSet &els) {
+    Nions = Ions.getTotalNum();
     NumGroups = Ions.getSpeciesSet().getTotalNum();
     F.resize(std::max(NumGroups, 4), nullptr);
-    if (NumGroups > 1 && !Ions.IsGrouped)
-    {
+    if (NumGroups > 1 && !Ions.IsGrouped) {
       NumGroups = 0;
     }
     const int N = els.getTotalNum();
@@ -99,20 +94,18 @@ template <class FT> struct OneBodyJastrow : public WaveFunctionComponentBase
     DistIndice.resize(Nions);
   }
 
-  void addFunc(int source_type, FT *afunc, int target_type = -1)
-  {
-    if (F[source_type] != nullptr) delete F[source_type];
+  void addFunc(int source_type, FT *afunc, int target_type = -1) {
+    if (F[source_type] != nullptr)
+      delete F[source_type];
     F[source_type] = afunc;
   }
 
   RealType evaluateLog(ParticleSet &P, ParticleSet::ParticleGradient_t &G,
-                       ParticleSet::ParticleLaplacian_t &L)
-  {
+                       ParticleSet::ParticleLaplacian_t &L) {
     const int n = P.getTotalNum();
     const DistanceTableData &d_ie(*(P.DistTables[myTableID]));
     LogValue = valT();
-    for (int iat = 0; iat < n; ++iat)
-    {
+    for (int iat = 0; iat < n; ++iat) {
       computeU3(P, iat, d_ie.Distances[iat]);
       LogValue -= Vat[iat] = simd::accumulate_n(U.data(), Nions, valT());
       Lap[iat] = accumulateGL(dU.data(), d2U.data(), d_ie.Displacements[iat],
@@ -123,31 +116,25 @@ template <class FT> struct OneBodyJastrow : public WaveFunctionComponentBase
     return LogValue;
   }
 
-  ValueType ratio(ParticleSet &P, int iat)
-  {
-    UpdateMode                = ORB_PBYP_RATIO;
-    curAt                     = valT(0);
+  ValueType ratio(ParticleSet &P, int iat) {
+    UpdateMode = ORB_PBYP_RATIO;
+    curAt = valT(0);
     const valT *restrict dist = P.DistTables[myTableID]->Temp_r.data();
-    if (NumGroups > 0)
-    {
-      for (int jg = 0; jg < NumGroups; ++jg)
-      {
+    if (NumGroups > 0) {
+      for (int jg = 0; jg < NumGroups; ++jg) {
         if (F[jg] != nullptr)
           curAt += F[jg]->evaluateV(Ions.first(jg), Ions.last(jg), dist,
                                     DistCompressed.data());
       }
-    }
-    else
-    {
-      for (int c = 0; c < Nions; ++c)
-      {
+    } else {
+      for (int c = 0; c < Nions; ++c) {
         int gid = Ions.GroupID[c];
-        if (F[gid] != nullptr) curAt += F[gid]->evaluate(dist[c]);
+        if (F[gid] != nullptr)
+          curAt += F[gid]->evaluate(dist[c]);
       }
     }
 
-    if (!P.Ready4Measure)
-    { // need to compute per atom
+    if (!P.Ready4Measure) { // need to compute per atom
       computeU3(P, iat, P.DistTables[myTableID]->Distances[iat]);
       Lap[iat] =
           accumulateGL(dU.data(), d2U.data(),
@@ -160,8 +147,7 @@ template <class FT> struct OneBodyJastrow : public WaveFunctionComponentBase
 
   inline void evaluateGL(ParticleSet &P, ParticleSet::ParticleGradient_t &G,
                          ParticleSet::ParticleLaplacian_t &L,
-                         bool fromscratch = false)
-  {
+                         bool fromscratch = false) {
     const size_t n = P.getTotalNum();
     for (size_t iat = 0; iat < n; ++iat)
       G[iat] += Grad[iat];
@@ -173,17 +159,15 @@ template <class FT> struct OneBodyJastrow : public WaveFunctionComponentBase
    * @return lap
    */
   inline valT accumulateGL(const valT *restrict du, const valT *restrict d2u,
-                           const RowContainer &displ, posT &grad) const
-  {
+                           const RowContainer &displ, posT &grad) const {
     valT lap(0);
     constexpr valT lapfac = OHMMS_DIM - RealType(1);
     //#pragma omp simd reduction(+:lap)
     for (int jat = 0; jat < Nions; ++jat)
       lap += d2u[jat] + lapfac * du[jat];
-    for (int idim = 0; idim < OHMMS_DIM; ++idim)
-    {
+    for (int idim = 0; idim < OHMMS_DIM; ++idim) {
       const valT *restrict dX = displ.data(idim);
-      valT s                  = valT();
+      valT s = valT();
       //#pragma omp simd reduction(+:s)
       for (int jat = 0; jat < Nions; ++jat)
         s += du[jat] * dX[jat];
@@ -198,30 +182,24 @@ template <class FT> struct OneBodyJastrow : public WaveFunctionComponentBase
    * @param dist starting address of the distances of the ions wrt the iat-th
    * particle
    */
-  inline void computeU3(ParticleSet &P, int iat, const valT *dist)
-  {
-    if (NumGroups > 0)
-    { // ions are grouped
+  inline void computeU3(ParticleSet &P, int iat, const valT *dist) {
+    if (NumGroups > 0) { // ions are grouped
       CONSTEXPR valT czero(0);
       std::fill_n(U.data(), Nions, czero);
       std::fill_n(dU.data(), Nions, czero);
       std::fill_n(d2U.data(), Nions, czero);
 
-      for (int jg = 0; jg < NumGroups; ++jg)
-      {
-        if (F[jg] == nullptr) continue;
+      for (int jg = 0; jg < NumGroups; ++jg) {
+        if (F[jg] == nullptr)
+          continue;
         F[jg]->evaluateVGL(Ions.first(jg), Ions.last(jg), dist, U.data(),
                            dU.data(), d2U.data(), DistCompressed.data(),
                            DistIndice.data());
       }
-    }
-    else
-    {
-      for (int c = 0; c < Nions; ++c)
-      {
+    } else {
+      for (int c = 0; c < Nions; ++c) {
         int gid = Ions.GroupID[c];
-        if (F[gid] != nullptr)
-        {
+        if (F[gid] != nullptr) {
           U[c] = F[gid]->evaluate(dist[c], dU[c], d2U[c]);
           dU[c] /= dist[c];
         }
@@ -233,8 +211,7 @@ template <class FT> struct OneBodyJastrow : public WaveFunctionComponentBase
    * @param P quantum particleset
    * @param iat particle index
    */
-  GradType evalGrad(ParticleSet &P, int iat)
-  {
+  GradType evalGrad(ParticleSet &P, int iat) {
     computeU3(P, iat, P.DistTables[myTableID]->Distances[iat]);
     Lap[iat] =
         accumulateGL(dU.data(), d2U.data(),
@@ -249,8 +226,7 @@ template <class FT> struct OneBodyJastrow : public WaveFunctionComponentBase
    *
    * Using Temp_r. curAt, curGrad and curLap are computed.
    */
-  ValueType ratioGrad(ParticleSet &P, int iat, GradType &grad_iat)
-  {
+  ValueType ratioGrad(ParticleSet &P, int iat, GradType &grad_iat) {
     UpdateMode = ORB_PBYP_PARTIAL;
 
     computeU3(P, iat, P.DistTables[myTableID]->Temp_r.data());
@@ -262,21 +238,19 @@ template <class FT> struct OneBodyJastrow : public WaveFunctionComponentBase
   }
 
   /** Accpted move. Update Vat[iat],Grad[iat] and Lap[iat] */
-  void acceptMove(ParticleSet &P, int iat)
-  {
+  void acceptMove(ParticleSet &P, int iat) {
 
-    if (UpdateMode == ORB_PBYP_RATIO)
-    {
+    if (UpdateMode == ORB_PBYP_RATIO) {
       computeU3(P, iat, P.DistTables[myTableID]->Temp_r.data());
       curLap = accumulateGL(dU.data(), d2U.data(),
                             P.DistTables[myTableID]->Temp_dr, curGrad);
     }
 
     LogValue += Vat[iat] - curAt;
-    Vat[iat]  = curAt;
+    Vat[iat] = curAt;
     Grad[iat] = curGrad;
-    Lap[iat]  = curLap;
+    Lap[iat] = curLap;
   }
 };
-}
+} // namespace qmcplusplus
 #endif

@@ -32,10 +32,8 @@
 using namespace std;
 using namespace qmcplusplus;
 
-
-void print_help()
-{
-  //clang-format off
+void print_help() {
+  // clang-format off
   cout << "usage:" << '\n';
   cout << "  check_determinant [-hvV] [-g \"n0 n1 n2\"] [-n steps]"     << '\n';
   cout << "             [-N substeps] [-s seed]"                        << '\n';
@@ -47,13 +45,11 @@ void print_help()
   cout << "  -s  set the random seed.           default: 11"            << '\n';
   cout << "  -v  verbose output"                                        << '\n';
   cout << "  -V  print version information and exit"                    << '\n';
-  //clang-format on
+  // clang-format on
 
   exit(1); // print help and exit
 }
-int main(int argc, char **argv)
-{
-
+int main(int argc, char **argv) {
 
   // clang-format off
   typedef QMCTraits::RealType           RealType;
@@ -61,29 +57,28 @@ int main(int argc, char **argv)
   typedef ParticleSet::PosType          PosType;
   // clang-format on
 
-  int na        = 1;
-  int nb        = 1;
-  int nc        = 1;
-  int nsteps    = 100;
-  int iseed     = 11;
+  int na = 1;
+  int nb = 1;
+  int nc = 1;
+  int nsteps = 100;
+  int iseed = 11;
   int nsubsteps = 1;
-  int np        = omp_get_max_threads();
+  int np = omp_get_max_threads();
 
   PrimeNumberSet<uint32_t> myPrimes;
 
   bool verbose = false;
 
   int opt;
-  while(optind < argc)
-  {
-    if ((opt = getopt(argc, argv, "hvVg:n:N:r:s:")) != -1)
-    {
-      switch (opt)
-      {
+  while (optind < argc) {
+    if ((opt = getopt(argc, argv, "hvVg:n:N:r:s:")) != -1) {
+      switch (opt) {
       case 'g': // tiling1 tiling2 tiling3
         sscanf(optarg, "%d %d %d", &na, &nb, &nc);
         break;
-      case 'h': print_help(); break;
+      case 'h':
+        print_help();
+        break;
       case 'n':
         nsteps = atoi(optarg);
         break;
@@ -93,7 +88,9 @@ int main(int argc, char **argv)
       case 's':
         iseed = atoi(optarg);
         break;
-      case 'v': verbose = true; break;
+      case 'v':
+        verbose = true;
+        break;
       case 'V':
         print_version(true);
         return 1;
@@ -101,8 +98,7 @@ int main(int argc, char **argv)
       default:
         print_help();
       }
-    }
-    else // disallow non-option arguments
+    } else // disallow non-option arguments
     {
       cerr << "Non-option arguments not allowed" << endl;
       print_help();
@@ -118,14 +114,13 @@ int main(int argc, char **argv)
   }
 
   // turn off output
-  if (!verbose || omp_get_max_threads() > 1)
-  {
+  if (!verbose || omp_get_max_threads() > 1) {
     outputManager.shutOff();
   }
 
   double accumulated_error = 0.0;
 
-#pragma omp parallel reduction(+:accumulated_error)
+#pragma omp parallel reduction(+ : accumulated_error)
   {
     ParticleSet ions, els;
     ions.setName("ion");
@@ -133,15 +128,15 @@ int main(int argc, char **argv)
 
     Tensor<OHMMS_PRECISION, 3> lattice_b;
     OHMMS_PRECISION scale = 1.0;
-    lattice_b             = tile_cell(ions, tmat, scale);
+    lattice_b = tile_cell(ions, tmat, scale);
 
     // create generator within the thread
     RandomGenerator<RealType> random_th(myPrimes[0]);
 
     ions.Lattice.BoxBConds = 1;
-    ions.RSoA              = ions.R; // fill the SoA
+    ions.RSoA = ions.R; // fill the SoA
 
-    const int nels  = count_electrons(ions, 1);
+    const int nels = count_electrons(ions, 1);
     const int nels3 = 3 * nels;
 
     { // create up/down electrons
@@ -170,7 +165,7 @@ int main(int argc, char **argv)
     ParticlePos_t delta(nels);
 
     RealType sqrttau = std::sqrt(tau);
-    RealType accept  = 0.5;
+    RealType accept = 0.5;
 
     aligned_vector<RealType> ur(nels);
     random_th.generate_uniform(ur.data(), nels);
@@ -178,23 +173,22 @@ int main(int argc, char **argv)
     els.update();
 
     int my_accepted = 0;
-    for (int mc = 0; mc < nsteps; ++mc)
-    {
+    for (int mc = 0; mc < nsteps; ++mc) {
       determinant_ref.recompute();
       determinant.recompute();
       for (int l = 0; l < nsubsteps; ++l) // drift-and-diffusion
       {
         random_th.generate_normal(&delta[0][0], nels3);
-        for (int iel = 0; iel < nels; ++iel)
-        {
+        for (int iel = 0; iel < nels; ++iel) {
           // Operate on electron with index iel
           els.setActive(iel);
 
           // Construct trial move
-          PosType dr   = sqrttau * delta[iel];
+          PosType dr = sqrttau * delta[iel];
           bool isValid = els.makeMoveAndCheck(iel, dr);
 
-          if (!isValid) continue;
+          if (!isValid)
+            continue;
 
           // Compute gradient at the trial position
 
@@ -209,9 +203,7 @@ int main(int argc, char **argv)
             determinant_ref.acceptMove(els, iel);
             determinant.acceptMove(els, iel);
             my_accepted++;
-          }
-          else
-          {
+          } else {
             els.rejectMove(iel);
           }
         } // iel
@@ -221,8 +213,7 @@ int main(int argc, char **argv)
     }
 
     // accumulate error
-    for (int i = 0; i < determinant_ref.size(); i++)
-    {
+    for (int i = 0; i < determinant_ref.size(); i++) {
       accumulated_error += std::fabs(determinant_ref(i) - determinant(i));
     }
   } // end of omp parallel
@@ -232,13 +223,11 @@ int main(int argc, char **argv)
   cout << "total accumulated error of " << accumulated_error << " for " << np
        << " procs" << '\n';
 
-  if (accumulated_error / np > small_err)
-  {
+  if (accumulated_error / np > small_err) {
     cout << "Checking failed with accumulated error: " << accumulated_error / np
          << " > " << small_err << '\n';
     return 1;
-  }
-  else
+  } else
     cout << "All checks passed for determinant" << '\n';
 
   return 0;

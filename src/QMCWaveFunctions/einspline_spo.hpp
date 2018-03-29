@@ -27,18 +27,16 @@
 #include "Numerics/OhmmsPETE/OhmmsArray.h"
 #include <iostream>
 
-namespace qmcplusplus
-{
-template <typename T, typename compute_engine_type = MultiBspline<T> >
-struct einspline_spo
-{
+namespace qmcplusplus {
+template <typename T, typename compute_engine_type = MultiBspline<T>>
+struct einspline_spo {
   /// define the einsplie data object type
   using spline_type = typename bspline_traits<T, 3>::SplineType;
-  using pos_type        = TinyVector<T, 3>;
+  using pos_type = TinyVector<T, 3>;
   using vContainer_type = aligned_vector<T>;
   using gContainer_type = VectorSoAContainer<T, 3>;
   using hContainer_type = VectorSoAContainer<T, 6>;
-  using lattice_type    = CrystalLattice<T, 3>;
+  using lattice_type = CrystalLattice<T, 3>;
 
   /// number of blocks
   int nBlocks;
@@ -65,9 +63,7 @@ struct einspline_spo
 
   /// default constructor
   einspline_spo()
-      : nBlocks(0), nSplines(0), firstBlock(0), lastBlock(0), Owner(false)
-  {
-  }
+      : nBlocks(0), nSplines(0), firstBlock(0), lastBlock(0), Owner(false) {}
   /// disable copy constructor
   einspline_spo(const einspline_spo &in) = delete;
   /// disable copy operator
@@ -81,14 +77,13 @@ struct einspline_spo
    * Create a view of the big object. A simple blocking & padding  method.
    */
   einspline_spo(einspline_spo &in, int team_size, int member_id)
-      : Owner(false), Lattice(in.Lattice)
-  {
-    nSplines         = in.nSplines;
+      : Owner(false), Lattice(in.Lattice) {
+    nSplines = in.nSplines;
     nSplinesPerBlock = in.nSplinesPerBlock;
-    nBlocks          = (in.nBlocks + team_size - 1) / team_size;
-    firstBlock       = nBlocks * member_id;
-    lastBlock        = std::min(in.nBlocks, nBlocks * (member_id + 1));
-    nBlocks          = lastBlock - firstBlock;
+    nBlocks = (in.nBlocks + team_size - 1) / team_size;
+    firstBlock = nBlocks * member_id;
+    lastBlock = std::min(in.nBlocks, nBlocks * (member_id + 1));
+    nBlocks = lastBlock - firstBlock;
     einsplines.resize(nBlocks);
     for (int i = 0, t = firstBlock; i < nBlocks; ++i, ++t)
       einsplines[i] = in.einsplines[t];
@@ -96,19 +91,17 @@ struct einspline_spo
   }
 
   /// destructors
-  ~einspline_spo()
-  {
-    if (psi.size()) clean();
+  ~einspline_spo() {
+    if (psi.size())
+      clean();
     if (Owner)
       for (int i = 0; i < nBlocks; ++i)
         myAllocator.destroy(einsplines[i]);
   }
 
-  void clean()
-  {
+  void clean() {
     const int n = psi.size();
-    for (int i = 0; i < n; ++i)
-    {
+    for (int i = 0; i < n; ++i) {
       delete psi[i];
       delete grad[i];
       delete hess[i];
@@ -116,17 +109,14 @@ struct einspline_spo
   }
 
   /// resize the containers
-  void resize()
-  {
-    if (nBlocks > psi.size())
-    {
+  void resize() {
+    if (nBlocks > psi.size()) {
       clean();
       psi.resize(nBlocks);
       grad.resize(nBlocks);
       hess.resize(nBlocks);
-      for (int i = 0; i < nBlocks; ++i)
-      {
-        psi[i]  = new vContainer_type(nSplinesPerBlock);
+      for (int i = 0; i < nBlocks; ++i) {
+        psi[i] = new vContainer_type(nSplinesPerBlock);
         grad[i] = new gContainer_type(nSplinesPerBlock);
         hess[i] = new hContainer_type(nSplinesPerBlock);
       }
@@ -135,15 +125,13 @@ struct einspline_spo
 
   // fix for general num_splines
   void set(int nx, int ny, int nz, int num_splines, int nblocks,
-           bool init_random = true)
-  {
-    nSplines         = num_splines;
-    nBlocks          = nblocks;
+           bool init_random = true) {
+    nSplines = num_splines;
+    nBlocks = nblocks;
     nSplinesPerBlock = num_splines / nblocks;
-    firstBlock       = 0;
-    lastBlock        = nBlocks;
-    if (einsplines.empty())
-    {
+    firstBlock = 0;
+    lastBlock = nBlocks;
+    if (einsplines.empty()) {
       Owner = true;
       TinyVector<int, 3> ng(nx, ny, nz);
       pos_type start(0);
@@ -153,9 +141,9 @@ struct einspline_spo
       Array<T, 3> data(nx, ny, nz);
       std::fill(data.begin(), data.end(), T());
       myrandom.generate_uniform(data.data(), data.size());
-      for (int i = 0; i < nBlocks; ++i)
-      {
-        einsplines[i] = myAllocator.createMultiBspline(T(0), start, end, ng, PERIODIC, nSplinesPerBlock);
+      for (int i = 0; i < nBlocks; ++i) {
+        einsplines[i] = myAllocator.createMultiBspline(
+            T(0), start, end, ng, PERIODIC, nSplinesPerBlock);
         if (init_random)
           for (int j = 0; j < nSplinesPerBlock; ++j)
             myAllocator.set(data.data(), einsplines[i], j);
@@ -165,71 +153,66 @@ struct einspline_spo
   }
 
   /** evaluate psi */
-  inline void evaluate_v(const pos_type &p)
-  {
+  inline void evaluate_v(const pos_type &p) {
     auto u = Lattice.toUnit_floor(p);
     for (int i = 0; i < nBlocks; ++i)
-      compute_engine.evaluate_v(einsplines[i], u[0], u[1], u[2], psi[i]->data(), psi[i]->size());
+      compute_engine.evaluate_v(einsplines[i], u[0], u[1], u[2], psi[i]->data(),
+                                psi[i]->size());
   }
 
   /** evaluate psi */
-  inline void evaluate_v_pfor(const pos_type &p)
-  {
+  inline void evaluate_v_pfor(const pos_type &p) {
     auto u = Lattice.toUnit_floor(p);
-    #pragma omp for nowait
+#pragma omp for nowait
     for (int i = 0; i < nBlocks; ++i)
-      compute_engine.evaluate_v(einsplines[i], u[0], u[1], u[2], psi[i]->data(), psi[i]->size());
+      compute_engine.evaluate_v(einsplines[i], u[0], u[1], u[2], psi[i]->data(),
+                                psi[i]->size());
   }
 
   /** evaluate psi, grad and lap */
-  inline void evaluate_vgl(const pos_type &p)
-  {
+  inline void evaluate_vgl(const pos_type &p) {
     auto u = Lattice.toUnit_floor(p);
     for (int i = 0; i < nBlocks; ++i)
       compute_engine.evaluate_vgl(einsplines[i], u[0], u[1], u[2],
-                                  psi[i]->data(), grad[i]->data(), hess[i]->data(),
-                                  psi[i]->size());
+                                  psi[i]->data(), grad[i]->data(),
+                                  hess[i]->data(), psi[i]->size());
   }
 
   /** evaluate psi, grad and lap */
-  inline void evaluate_vgl_pfor(const pos_type &p)
-  {
+  inline void evaluate_vgl_pfor(const pos_type &p) {
     auto u = Lattice.toUnit_floor(p);
-    #pragma omp for nowait
+#pragma omp for nowait
     for (int i = 0; i < nBlocks; ++i)
       compute_engine.evaluate_vgl(einsplines[i], u[0], u[1], u[2],
-                                  psi[i]->data(), grad[i]->data(), hess[i]->data(),
-                                  psi[i]->size());
+                                  psi[i]->data(), grad[i]->data(),
+                                  hess[i]->data(), psi[i]->size());
   }
 
   /** evaluate psi, grad and hess */
-  inline void evaluate_vgh(const pos_type &p)
-  {
+  inline void evaluate_vgh(const pos_type &p) {
     auto u = Lattice.toUnit_floor(p);
     for (int i = 0; i < nBlocks; ++i)
       compute_engine.evaluate_vgh(einsplines[i], u[0], u[1], u[2],
-                                  psi[i]->data(), grad[i]->data(), hess[i]->data(),
-                                  psi[i]->size());
+                                  psi[i]->data(), grad[i]->data(),
+                                  hess[i]->data(), psi[i]->size());
   }
 
   /** evaluate psi, grad and hess */
-  inline void evaluate_vgh_pfor(const pos_type &p)
-  {
+  inline void evaluate_vgh_pfor(const pos_type &p) {
     auto u = Lattice.toUnit_floor(p);
-    #pragma omp for nowait
+#pragma omp for nowait
     for (int i = 0; i < nBlocks; ++i)
       compute_engine.evaluate_vgh(einsplines[i], u[0], u[1], u[2],
-                                  psi[i]->data(), grad[i]->data(), hess[i]->data(),
-                                  psi[i]->size());
+                                  psi[i]->data(), grad[i]->data(),
+                                  hess[i]->data(), psi[i]->size());
   }
 
-  void print(std::ostream &os)
-  {
+  void print(std::ostream &os) {
     os << "SPO nBlocks=" << nBlocks << " firstBlock=" << firstBlock
        << " lastBlock=" << lastBlock << " nSplines=" << nSplines
        << " nSplinesPerBlock=" << nSplinesPerBlock << std::endl;
   }
 };
-}
+} // namespace qmcplusplus
 
 #endif

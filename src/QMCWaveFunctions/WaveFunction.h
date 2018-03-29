@@ -36,12 +36,10 @@
 #include <QMCWaveFunctions/Jastrow/ThreeBodyJastrowRef.h>
 #include <QMCWaveFunctions/Jastrow/ThreeBodyJastrow.h>
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 /** A minimal TrialWavefunction
  */
-struct WaveFunctionBase
-{
+struct WaveFunctionBase {
   using valT = OHMMS_PRECISION;
   using posT = TinyVector<OHMMS_PRECISION, OHMMS_DIM>;
   typedef OHMMS_PRECISION RealType;
@@ -53,21 +51,20 @@ struct WaveFunctionBase
   inline void setRmax(valT x) { d_ie->setRmax(x); }
 
   virtual ~WaveFunctionBase() {}
-  virtual void evaluateLog(ParticleSet &P)                    = 0;
-  virtual posT evalGrad(ParticleSet &P, int iat)              = 0;
+  virtual void evaluateLog(ParticleSet &P) = 0;
+  virtual posT evalGrad(ParticleSet &P, int iat) = 0;
   virtual valT ratioGrad(ParticleSet &P, int iat, posT &grad) = 0;
-  virtual valT ratio(ParticleSet &P, int iat)                 = 0;
-  virtual void acceptMove(ParticleSet &P, int iat)            = 0;
-  virtual void restore(int iat)                               = 0;
-  virtual void evaluateGL(ParticleSet &P)                     = 0;
+  virtual valT ratio(ParticleSet &P, int iat) = 0;
+  virtual void acceptMove(ParticleSet &P, int iat) = 0;
+  virtual void restore(int iat) = 0;
+  virtual void evaluateGL(ParticleSet &P) = 0;
 };
 
-struct WaveFunction : public WaveFunctionBase
-{
+struct WaveFunction : public WaveFunctionBase {
   using J1OrbType = OneBodyJastrow<BsplineFunctor<valT>>;
   using J2OrbType = TwoBodyJastrow<BsplineFunctor<valT>>;
   using J3OrbType = ThreeBodyJastrow<PolynomialFunctor3D>;
-  using DetType   = DiracDeterminant;
+  using DetType = DiracDeterminant;
 
   bool FirstTime;
   J1OrbType *J1;
@@ -89,20 +86,18 @@ struct WaveFunction : public WaveFunctionBase
   void evaluateGL(ParticleSet &P);
 };
 
-} // qmcplusplus
+} // namespace qmcplusplus
 
-namespace miniqmcreference
-{
+namespace miniqmcreference {
 /** A minimial TrialWaveFunction - the reference version.
  */
 using namespace qmcplusplus;
-struct WaveFunctionRef : public qmcplusplus::WaveFunctionBase
-{
+struct WaveFunctionRef : public qmcplusplus::WaveFunctionBase {
 
   using J1OrbType = OneBodyJastrow<BsplineFunctor<valT>>;
   using J2OrbType = TwoBodyJastrow<BsplineFunctor<valT>>;
   using J3OrbType = ThreeBodyJastrow<PolynomialFunctor3D>;
-  using DetType   = DiracDeterminantRef;
+  using DetType = DiracDeterminantRef;
 
   bool FirstTime;
   J1OrbType *J1;
@@ -124,6 +119,6 @@ struct WaveFunctionRef : public qmcplusplus::WaveFunctionBase
   void restore(int iat);
   void evaluateGL(ParticleSet &P);
 };
-} // miniqmcreference
+} // namespace miniqmcreference
 
 #endif
