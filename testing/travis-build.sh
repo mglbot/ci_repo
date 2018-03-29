@@ -12,6 +12,9 @@ export OMP_NUM_THREADS=4
 
 env
 
+$CC --version
+$CXX --version
+
 cd build
 
 cmake ..

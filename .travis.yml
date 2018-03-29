@@ -52,10 +52,6 @@ matrix:
 
 before_install:
   - eval "${MATRIX_EVAL}" # necessary b/c travis overwrites CC/CXX
-  - which $CC
-  - $CC --version
-  - which $CXX
-  - $CXX --version
 
 script:
   # Run your build commands next

@@ -8,6 +8,6 @@ echo ""
 
 STATUS=0
 
-
+clang-format --version
 
 exit ${STATUS}
