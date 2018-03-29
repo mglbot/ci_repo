@@ -477,7 +477,9 @@ int main(int argc, char **argv) {
             for (int k = 0; k < nknots; k++) {
               PosType deltar(r * rOnSphere[k] - dr);
 
-              Timers[Timer_DT]->start(); els.makeMoveOnSphere(iel, deltar); Timers[Timer_DT]->stop();
+              Timers[Timer_DT]->start();
+              els.makeMoveOnSphere(iel, deltar);
+              Timers[Timer_DT]->stop();
 
               Timers[Timer_Value]->start();
 
