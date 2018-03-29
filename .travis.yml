@@ -1,59 +1,64 @@
 dist: trusty
 language: cpp
 
-matrix:
+jobs:
   include:
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - gcc-7
-            - g++-7
-            - cmake
-            - cmake-data
-            - libblas-dev
-            - liblapack-dev
-      env:
-        - MATRIX_EVAL="CC=/usr/bin/gcc-7 CXX=/usr/bin/g++-7"
-        - BUILD_TEST=true
-        - CLANG_FORMAT=false
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-6.0
-          packages:
-            - clang-6.0
-            - cmake
-            - cmake-data
-            - libblas-dev
-            - liblapack-dev
-            - libiomp-dev
-      env:
-        - MATRIX_EVAL="CC=/usr/bin/clang-6.0 CXX=/usr/bin/clang++-6.0"
-        - CFLAGS="-fopenmp=libiomp5"
-        - CXXFLAGS="-fopenmp=libiomp5"
-        - BUILD_TEST=true
-        - CLANG_FORMAT=false
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-6.0
-          packages:
-            - clang-format-6.0
-      env:
-        - BUILD_TEST=false
-        - CLANG_FORMAT=true
-
-before_install:
-  - eval "${MATRIX_EVAL}" # necessary b/c travis overwrites CC/CXX
-
-script:
-  # Run your build commands next
-  - if $BUILD_TEST ; then ./testing/travis-build.sh ; fi
-  - if $CLANG_FORMAT ; then ./testing/travis-format.sh ; fi
+    stage: format
+      - os: linux
+        addons:
+          apt:
+            sources:
+              - ubuntu-toolchain-r-test
+              - llvm-toolchain-trusty-6.0
+            packages:
+              - clang-format-6.0
+        env:
+          - BUILD_TEST=false
+          - CLANG_FORMAT=true
+        install: true
+        script:
+          - ./testing/travis-format.sh
+    stage: build
+      - os: linux
+        addons:
+          apt:
+            sources:
+              - ubuntu-toolchain-r-test
+            packages:
+              - gcc-7
+              - g++-7
+              - cmake
+              - cmake-data
+              - libblas-dev
+              - liblapack-dev
+        env:
+          - MATRIX_EVAL="CC=/usr/bin/gcc-7 CXX=/usr/bin/g++-7"
+          - BUILD_TEST=true
+          - CLANG_FORMAT=false
+        before_install:
+          - eval "${MATRIX_EVAL}" # necessary b/c travis overwrites CC/CXX
+        script:
+          - ./testing/travis-build.sh
+      - os: linux
+        addons:
+          apt:
+            sources:
+              - ubuntu-toolchain-r-test
+              - llvm-toolchain-trusty-6.0
+            packages:
+              - clang-6.0
+              - cmake
+              - cmake-data
+              - libblas-dev
+              - liblapack-dev
+              - libiomp-dev
+        env:
+          - MATRIX_EVAL="CC=/usr/bin/clang-6.0 CXX=/usr/bin/clang++-6.0"
+          - CFLAGS="-fopenmp=libiomp5"
+          - CXXFLAGS="-fopenmp=libiomp5"
+          - BUILD_TEST=true
+          - CLANG_FORMAT=false
+        before_install:
+          - eval "${MATRIX_EVAL}" # necessary b/c travis overwrites CC/CXX
+        script:
+          - ./testing/travis-build.sh
