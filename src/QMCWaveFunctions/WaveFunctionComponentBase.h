@@ -32,8 +32,7 @@
 /**@file WaveFunctionComponentBase.h
  *@brief Declaration of WaveFunctionComponentBase
  */
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
 /// forward declaration of WaveFunctionComponentBase
 class WaveFunctionComponentBase;
@@ -53,20 +52,17 @@ typedef WaveFunctionComponentBase *WaveFunctionComponentBasePtr;
 /** @ingroup WaveFunctionComponentComponent
  * @brief An abstract class for a component of a many-body trial wave function
  */
-struct WaveFunctionComponentBase : public QMCTraits
-{
+struct WaveFunctionComponentBase : public QMCTraits {
 
   /// recasting enum of DistanceTableData to maintain consistency
-  enum
-  {
-    SourceIndex  = DistanceTableData::SourceIndex,
+  enum {
+    SourceIndex = DistanceTableData::SourceIndex,
     VisitorIndex = DistanceTableData::VisitorIndex,
-    WalkerIndex  = DistanceTableData::WalkerIndex
+    WalkerIndex = DistanceTableData::WalkerIndex
   };
 
   /** enum for a update mode */
-  enum
-  {
+  enum {
     ORB_PBYP_RATIO, /*!< particle-by-particle ratio only */
     ORB_PBYP_ALL, /*!< particle-by-particle, update Value-Gradient-Laplacian */
     ORB_PBYP_PARTIAL, /*!< particle-by-particle, update Value and Grdient */
@@ -112,8 +108,8 @@ struct WaveFunctionComponentBase : public QMCTraits
   /// default constructor
   WaveFunctionComponentBase()
       : IsOptimizing(false), Optimizable(true), UpdateMode(ORB_WALKER),
-        LogValue(1.0), PhaseValue(0.0), WaveFunctionComponentName("WaveFunctionComponentBase")
-  {
+        LogValue(1.0), PhaseValue(0.0),
+        WaveFunctionComponentName("WaveFunctionComponentBase") {
     /// store instead of computing
     Need2Compute4PbyP = false;
   }
@@ -172,5 +168,5 @@ struct WaveFunctionComponentBase : public QMCTraits
                           ParticleSet::ParticleLaplacian_t &L,
                           bool fromscratch = false) = 0;
 };
-}
+} // namespace qmcplusplus
 #endif

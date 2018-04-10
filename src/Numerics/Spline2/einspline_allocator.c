@@ -31,8 +31,7 @@
 
 #if defined(__INTEL_COMPILER)
 
-inline void *einspline_alloc(size_t size, size_t alignment)
-{
+inline void *einspline_alloc(size_t size, size_t alignment) {
   return _mm_malloc(size, alignment);
 }
 
@@ -42,8 +41,7 @@ inline void einspline_free(void *ptr) { _mm_free(ptr); }
 
 int posix_memalign(void **memptr, size_t alignment, size_t size);
 
-inline void *einspline_alloc(size_t size, size_t alignment)
-{
+inline void *einspline_alloc(size_t size, size_t alignment) {
   void *ptr;
   posix_memalign(&ptr, alignment, size);
   return ptr;
@@ -53,25 +51,22 @@ inline void einspline_free(void *ptr) { free(ptr); }
 
 #else
 
-inline void *einspline_alloc(size_t size, size_t alignment)
-{
+inline void *einspline_alloc(size_t size, size_t alignment) {
   size += (alignment - 1) + sizeof(void *);
   void *ptr = malloc(size);
   if (ptr == NULL)
     return NULL;
-  else
-  {
+  else {
     void *shifted =
         (char *)ptr + sizeof(void *); // make room to save original pointer
-    size_t offset           = alignment - (size_t)shifted % (size_t)alignment;
-    void *aligned           = (char *)shifted + offset;
+    size_t offset = alignment - (size_t)shifted % (size_t)alignment;
+    void *aligned = (char *)shifted + offset;
     *((void **)aligned - 1) = ptr;
     return aligned;
   }
 }
 
-inline void einspline_free(void *aligned)
-{
+inline void einspline_free(void *aligned) {
   void *ptr = *((void **)aligned - 1);
   free(ptr);
 }
@@ -80,21 +75,19 @@ inline void einspline_free(void *aligned)
 multi_UBspline_3d_s *
 einspline_create_multi_UBspline_3d_s(Ugrid x_grid, Ugrid y_grid, Ugrid z_grid,
                                      BCtype_s xBC, BCtype_s yBC, BCtype_s zBC,
-                                     int num_splines)
-{
+                                     int num_splines) {
   // Create new spline
   multi_UBspline_3d_s *restrict spline = malloc(sizeof(multi_UBspline_3d_s));
-  if (!spline)
-  {
+  if (!spline) {
     fprintf(stderr,
             "Out of memory allocating spline in create_multi_UBspline_3d_s.\n");
     abort();
   }
-  spline->spcode      = MULTI_U3D;
-  spline->tcode       = SINGLE_REAL;
-  spline->xBC         = xBC;
-  spline->yBC         = yBC;
-  spline->zBC         = zBC;
+  spline->spcode = MULTI_U3D;
+  spline->tcode = SINGLE_REAL;
+  spline->xBC = xBC;
+  spline->yBC = yBC;
+  spline->zBC = zBC;
   spline->num_splines = num_splines;
   // Setup internal variables
   int Mx = x_grid.num;
@@ -105,28 +98,28 @@ einspline_create_multi_UBspline_3d_s(Ugrid x_grid, Ugrid y_grid, Ugrid z_grid,
   if (xBC.lCode == PERIODIC || xBC.lCode == ANTIPERIODIC)
     Nx = Mx + 3;
   else
-    Nx             = Mx + 2;
-  x_grid.delta     = (x_grid.end - x_grid.start) / (double)(Nx - 3);
+    Nx = Mx + 2;
+  x_grid.delta = (x_grid.end - x_grid.start) / (double)(Nx - 3);
   x_grid.delta_inv = 1.0 / x_grid.delta;
-  spline->x_grid   = x_grid;
+  spline->x_grid = x_grid;
 
   if (yBC.lCode == PERIODIC || yBC.lCode == ANTIPERIODIC)
     Ny = My + 3;
   else
-    Ny             = My + 2;
-  y_grid.delta     = (y_grid.end - y_grid.start) / (double)(Ny - 3);
+    Ny = My + 2;
+  y_grid.delta = (y_grid.end - y_grid.start) / (double)(Ny - 3);
   y_grid.delta_inv = 1.0 / y_grid.delta;
-  spline->y_grid   = y_grid;
+  spline->y_grid = y_grid;
 
   if (zBC.lCode == PERIODIC || zBC.lCode == ANTIPERIODIC)
     Nz = Mz + 3;
   else
-    Nz             = Mz + 2;
-  z_grid.delta     = (z_grid.end - z_grid.start) / (double)(Nz - 3);
+    Nz = Mz + 2;
+  z_grid.delta = (z_grid.end - z_grid.start) / (double)(Nz - 3);
   z_grid.delta_inv = 1.0 / z_grid.delta;
-  spline->z_grid   = z_grid;
+  spline->z_grid = z_grid;
 
-  const int ND   = QMC_CLINE / sizeof(float);
+  const int ND = QMC_CLINE / sizeof(float);
   const size_t N = ((num_splines + ND - 1) / ND) * ND;
   // int N= (num_splines%ND) ? (num_splines+ND-num_splines%ND) : num_splines;
   spline->x_stride = (size_t)Ny * (size_t)Nz * (size_t)N;
@@ -139,8 +132,7 @@ einspline_create_multi_UBspline_3d_s(Ugrid x_grid, Ugrid y_grid, Ugrid z_grid,
   // printf("Einepline allocator %d %d %d %zd (%d)  %zu
   // %d\n",Nx,Ny,Nz,N,num_splines,spline->coefs_size,QMC_CLINE);
 
-  if (!spline->coefs)
-  {
+  if (!spline->coefs) {
     fprintf(stderr, "Out of memory allocating spline coefficients in "
                     "create_multi_UBspline_3d_s.\n");
     abort();
@@ -170,22 +162,20 @@ einspline_create_multi_UBspline_3d_s(Ugrid x_grid, Ugrid y_grid, Ugrid z_grid,
 multi_UBspline_3d_d *
 einspline_create_multi_UBspline_3d_d(Ugrid x_grid, Ugrid y_grid, Ugrid z_grid,
                                      BCtype_d xBC, BCtype_d yBC, BCtype_d zBC,
-                                     int num_splines)
-{
+                                     int num_splines) {
   // Create new spline
   multi_UBspline_3d_d *restrict spline = malloc(sizeof(multi_UBspline_3d_d));
 
-  if (!spline)
-  {
+  if (!spline) {
     fprintf(stderr,
             "Out of memory allocating spline in create_multi_UBspline_3d_d.\n");
     abort();
   }
-  spline->spcode      = MULTI_U3D;
-  spline->tcode       = DOUBLE_REAL;
-  spline->xBC         = xBC;
-  spline->yBC         = yBC;
-  spline->zBC         = zBC;
+  spline->spcode = MULTI_U3D;
+  spline->tcode = DOUBLE_REAL;
+  spline->xBC = xBC;
+  spline->yBC = yBC;
+  spline->zBC = zBC;
   spline->num_splines = num_splines;
 
   // Setup internal variables
@@ -197,26 +187,26 @@ einspline_create_multi_UBspline_3d_d(Ugrid x_grid, Ugrid y_grid, Ugrid z_grid,
   if (xBC.lCode == PERIODIC || xBC.lCode == ANTIPERIODIC)
     Nx = Mx + 3;
   else
-    Nx             = Mx + 2;
-  x_grid.delta     = (x_grid.end - x_grid.start) / (double)(Nx - 3);
+    Nx = Mx + 2;
+  x_grid.delta = (x_grid.end - x_grid.start) / (double)(Nx - 3);
   x_grid.delta_inv = 1.0 / x_grid.delta;
-  spline->x_grid   = x_grid;
+  spline->x_grid = x_grid;
 
   if (yBC.lCode == PERIODIC || yBC.lCode == ANTIPERIODIC)
     Ny = My + 3;
   else
-    Ny             = My + 2;
-  y_grid.delta     = (y_grid.end - y_grid.start) / (double)(Ny - 3);
+    Ny = My + 2;
+  y_grid.delta = (y_grid.end - y_grid.start) / (double)(Ny - 3);
   y_grid.delta_inv = 1.0 / y_grid.delta;
-  spline->y_grid   = y_grid;
+  spline->y_grid = y_grid;
 
   if (zBC.lCode == PERIODIC || zBC.lCode == ANTIPERIODIC)
     Nz = Mz + 3;
   else
-    Nz             = Mz + 2;
-  z_grid.delta     = (z_grid.end - z_grid.start) / (double)(Nz - 3);
+    Nz = Mz + 2;
+  z_grid.delta = (z_grid.end - z_grid.start) / (double)(Nz - 3);
   z_grid.delta_inv = 1.0 / z_grid.delta;
-  spline->z_grid   = z_grid;
+  spline->z_grid = z_grid;
 
   const int ND = QMC_CLINE / sizeof(double);
   int N =
@@ -230,8 +220,7 @@ einspline_create_multi_UBspline_3d_d(Ugrid x_grid, Ugrid y_grid, Ugrid z_grid,
   spline->coefs =
       (double *)einspline_alloc(sizeof(double) * spline->coefs_size, QMC_CLINE);
 
-  if (!spline->coefs)
-  {
+  if (!spline->coefs) {
     fprintf(stderr, "Out of memory allocating spline coefficients in "
                     "create_multi_UBspline_3d_d.\n");
     abort();
@@ -243,15 +232,14 @@ einspline_create_multi_UBspline_3d_d(Ugrid x_grid, Ugrid y_grid, Ugrid z_grid,
 UBspline_3d_d *einspline_create_UBspline_3d_d(Ugrid x_grid, Ugrid y_grid,
                                               Ugrid z_grid, BCtype_d xBC,
                                               BCtype_d yBC, BCtype_d zBC,
-                                              double *data)
-{
+                                              double *data) {
   // Create new spline
   UBspline_3d_d *restrict spline = malloc(sizeof(UBspline_3d_d));
-  spline->spcode                 = U3D;
-  spline->tcode                  = DOUBLE_REAL;
-  spline->xBC                    = xBC;
-  spline->yBC                    = yBC;
-  spline->zBC                    = zBC;
+  spline->spcode = U3D;
+  spline->tcode = DOUBLE_REAL;
+  spline->xBC = xBC;
+  spline->yBC = yBC;
+  spline->zBC = zBC;
 
   // Setup internal variables
   int Mx = x_grid.num;
@@ -262,26 +250,26 @@ UBspline_3d_d *einspline_create_UBspline_3d_d(Ugrid x_grid, Ugrid y_grid,
   if (xBC.lCode == PERIODIC || xBC.lCode == ANTIPERIODIC)
     Nx = Mx + 3;
   else
-    Nx             = Mx + 2;
-  x_grid.delta     = (x_grid.end - x_grid.start) / (double)(Nx - 3);
+    Nx = Mx + 2;
+  x_grid.delta = (x_grid.end - x_grid.start) / (double)(Nx - 3);
   x_grid.delta_inv = 1.0 / x_grid.delta;
-  spline->x_grid   = x_grid;
+  spline->x_grid = x_grid;
 
   if (yBC.lCode == PERIODIC || yBC.lCode == ANTIPERIODIC)
     Ny = My + 3;
   else
-    Ny             = My + 2;
-  y_grid.delta     = (y_grid.end - y_grid.start) / (double)(Ny - 3);
+    Ny = My + 2;
+  y_grid.delta = (y_grid.end - y_grid.start) / (double)(Ny - 3);
   y_grid.delta_inv = 1.0 / y_grid.delta;
-  spline->y_grid   = y_grid;
+  spline->y_grid = y_grid;
 
   if (zBC.lCode == PERIODIC || zBC.lCode == ANTIPERIODIC)
     Nz = Mz + 3;
   else
-    Nz             = Mz + 2;
-  z_grid.delta     = (z_grid.end - z_grid.start) / (double)(Nz - 3);
+    Nz = Mz + 2;
+  z_grid.delta = (z_grid.end - z_grid.start) / (double)(Nz - 3);
   z_grid.delta_inv = 1.0 / z_grid.delta;
-  spline->z_grid   = z_grid;
+  spline->z_grid = z_grid;
 
   spline->x_stride = Ny * Nz;
   spline->y_stride = Nz;
@@ -296,8 +284,7 @@ UBspline_3d_d *einspline_create_UBspline_3d_d(Ugrid x_grid, Ugrid y_grid,
 // First, solve in the X-direction
 #pragma omp parallel for
     for (int iy = 0; iy < My; iy++)
-      for (int iz = 0; iz < Mz; iz++)
-      {
+      for (int iz = 0; iz < Mz; iz++) {
         intptr_t doffset = iy * Mz + iz;
         intptr_t coffset = iy * Nz + iz;
         find_coefs_1d_d(spline->x_grid, xBC, data + doffset, My * Mz,
@@ -307,8 +294,7 @@ UBspline_3d_d *einspline_create_UBspline_3d_d(Ugrid x_grid, Ugrid y_grid,
 // Now, solve in the Y-direction
 #pragma omp parallel for
     for (int ix = 0; ix < Nx; ix++)
-      for (int iz = 0; iz < Nz; iz++)
-      {
+      for (int iz = 0; iz < Nz; iz++) {
         intptr_t doffset = ix * Ny * Nz + iz;
         intptr_t coffset = ix * Ny * Nz + iz;
         find_coefs_1d_d(spline->y_grid, yBC, spline->coefs + doffset, Nz,
@@ -318,8 +304,7 @@ UBspline_3d_d *einspline_create_UBspline_3d_d(Ugrid x_grid, Ugrid y_grid,
 // Now, solve in the Z-direction
 #pragma omp parallel for
     for (int ix = 0; ix < Nx; ix++)
-      for (int iy = 0; iy < Ny; iy++)
-      {
+      for (int iy = 0; iy < Ny; iy++) {
         intptr_t doffset = (ix * Ny + iy) * Nz;
         intptr_t coffset = (ix * Ny + iy) * Nz;
         find_coefs_1d_d(spline->z_grid, zBC, spline->coefs + doffset, 1,
@@ -332,15 +317,14 @@ UBspline_3d_d *einspline_create_UBspline_3d_d(Ugrid x_grid, Ugrid y_grid,
 UBspline_3d_s *einspline_create_UBspline_3d_s(Ugrid x_grid, Ugrid y_grid,
                                               Ugrid z_grid, BCtype_s xBC,
                                               BCtype_s yBC, BCtype_s zBC,
-                                              float *data)
-{
+                                              float *data) {
   // Create new spline
   UBspline_3d_s *spline = malloc(sizeof(UBspline_3d_s));
-  spline->spcode        = U3D;
-  spline->tcode         = SINGLE_REAL;
-  spline->xBC           = xBC;
-  spline->yBC           = yBC;
-  spline->zBC           = zBC;
+  spline->spcode = U3D;
+  spline->tcode = SINGLE_REAL;
+  spline->xBC = xBC;
+  spline->yBC = yBC;
+  spline->zBC = zBC;
   // Setup internal variables
   int Mx = x_grid.num;
   int My = y_grid.num;
@@ -350,26 +334,26 @@ UBspline_3d_s *einspline_create_UBspline_3d_s(Ugrid x_grid, Ugrid y_grid,
   if (xBC.lCode == PERIODIC || xBC.lCode == ANTIPERIODIC)
     Nx = Mx + 3;
   else
-    Nx             = Mx + 2;
-  x_grid.delta     = (x_grid.end - x_grid.start) / (double)(Nx - 3);
+    Nx = Mx + 2;
+  x_grid.delta = (x_grid.end - x_grid.start) / (double)(Nx - 3);
   x_grid.delta_inv = 1.0 / x_grid.delta;
-  spline->x_grid   = x_grid;
+  spline->x_grid = x_grid;
 
   if (yBC.lCode == PERIODIC || yBC.lCode == ANTIPERIODIC)
     Ny = My + 3;
   else
-    Ny             = My + 2;
-  y_grid.delta     = (y_grid.end - y_grid.start) / (double)(Ny - 3);
+    Ny = My + 2;
+  y_grid.delta = (y_grid.end - y_grid.start) / (double)(Ny - 3);
   y_grid.delta_inv = 1.0 / y_grid.delta;
-  spline->y_grid   = y_grid;
+  spline->y_grid = y_grid;
 
   if (zBC.lCode == PERIODIC || zBC.lCode == ANTIPERIODIC)
     Nz = Mz + 3;
   else
-    Nz             = Mz + 2;
-  z_grid.delta     = (z_grid.end - z_grid.start) / (double)(Nz - 3);
+    Nz = Mz + 2;
+  z_grid.delta = (z_grid.end - z_grid.start) / (double)(Nz - 3);
   z_grid.delta_inv = 1.0 / z_grid.delta;
-  spline->z_grid   = z_grid;
+  spline->z_grid = z_grid;
 
   spline->x_stride = Ny * Nz;
   spline->y_stride = Nz;
@@ -380,8 +364,7 @@ UBspline_3d_s *einspline_create_UBspline_3d_s(Ugrid x_grid, Ugrid y_grid,
 
   // First, solve in the X-direction
   for (int iy = 0; iy < My; iy++)
-    for (int iz = 0; iz < Mz; iz++)
-    {
+    for (int iz = 0; iz < Mz; iz++) {
       intptr_t doffset = iy * Mz + iz;
       intptr_t coffset = iy * Nz + iz;
       find_coefs_1d_s(spline->x_grid, xBC, data + doffset, My * Mz,
@@ -390,8 +373,7 @@ UBspline_3d_s *einspline_create_UBspline_3d_s(Ugrid x_grid, Ugrid y_grid,
 
   // Now, solve in the Y-direction
   for (int ix = 0; ix < Nx; ix++)
-    for (int iz = 0; iz < Nz; iz++)
-    {
+    for (int iz = 0; iz < Nz; iz++) {
       intptr_t doffset = ix * Ny * Nz + iz;
       intptr_t coffset = ix * Ny * Nz + iz;
       find_coefs_1d_s(spline->y_grid, yBC, spline->coefs + doffset, Nz,
@@ -400,8 +382,7 @@ UBspline_3d_s *einspline_create_UBspline_3d_s(Ugrid x_grid, Ugrid y_grid,
 
   // Now, solve in the Z-direction
   for (int ix = 0; ix < Nx; ix++)
-    for (int iy = 0; iy < Ny; iy++)
-    {
+    for (int iy = 0; iy < Ny; iy++) {
       intptr_t doffset = (ix * Ny + iy) * Nz;
       intptr_t coffset = (ix * Ny + iy) * Nz;
       find_coefs_1d_s(spline->z_grid, zBC, spline->coefs + doffset, 1,

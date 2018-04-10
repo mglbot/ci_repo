@@ -25,8 +25,7 @@
 ///////////////////////////
 // Single precision real //
 ///////////////////////////
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   float *restrict coefs;
@@ -34,8 +33,7 @@ typedef struct
   BCtype_s xBC;
 } UBspline_1d_s;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   float *restrict coefs;
@@ -44,8 +42,7 @@ typedef struct
   BCtype_s xBC, yBC;
 } UBspline_2d_s;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   float *restrict coefs;
@@ -58,8 +55,7 @@ typedef struct
 ///////////////////////////
 // Double precision real //
 ///////////////////////////
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   double *restrict coefs;
@@ -67,8 +63,7 @@ typedef struct
   BCtype_d xBC;
 } UBspline_1d_d;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   double *restrict coefs;
@@ -77,8 +72,7 @@ typedef struct
   BCtype_d xBC, yBC;
 } UBspline_2d_d;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   double *restrict coefs;
@@ -91,8 +85,7 @@ typedef struct
 //////////////////////////////
 // Single precision complex //
 //////////////////////////////
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   complex_float *restrict coefs;
@@ -100,8 +93,7 @@ typedef struct
   BCtype_c xBC;
 } UBspline_1d_c;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   complex_float *restrict coefs;
@@ -110,8 +102,7 @@ typedef struct
   BCtype_c xBC, yBC;
 } UBspline_2d_c;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   complex_float *restrict coefs;
@@ -124,8 +115,7 @@ typedef struct
 //////////////////////////////
 // Double precision complex //
 //////////////////////////////
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   complex_double *restrict coefs;
@@ -133,8 +123,7 @@ typedef struct
   BCtype_z xBC;
 } UBspline_1d_z;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   complex_double *restrict coefs;
@@ -143,8 +132,7 @@ typedef struct
   BCtype_z xBC, yBC;
 } UBspline_2d_z;
 
-typedef struct
-{
+typedef struct {
   spline_code spcode;
   type_code tcode;
   complex_double *restrict coefs;

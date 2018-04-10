@@ -51,32 +51,27 @@ typedef enum { SINGLE_REAL, DOUBLE_REAL, SINGLE_COMPLEX, DOUBLE_COMPLEX }
 type_code;
 // clang-format on
 
-typedef struct
-{
+typedef struct {
   bc_code lCode, rCode;
   float lVal, rVal;
 } BCtype_s;
 
-typedef struct
-{
+typedef struct {
   bc_code lCode, rCode;
   double lVal, rVal;
 } BCtype_d;
 
-typedef struct
-{
+typedef struct {
   bc_code lCode, rCode;
   float lVal_r, lVal_i, rVal_r, rVal_i;
 } BCtype_c;
 
-typedef struct
-{
+typedef struct {
   bc_code lCode, rCode;
   double lVal_r, lVal_i, rVal_r, rVal_i;
 } BCtype_z;
 
-typedef struct
-{
+typedef struct {
   double start, end;
   int num;
 
@@ -84,8 +79,7 @@ typedef struct
   double delta, delta_inv;
 } Ugrid;
 
-typedef struct
-{
+typedef struct {
   spline_code sp_code;
   type_code t_code;
   void *restrict coefs;

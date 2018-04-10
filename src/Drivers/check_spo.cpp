@@ -31,9 +31,8 @@
 using namespace std;
 using namespace qmcplusplus;
 
-void print_help()
-{
-  //clang-format off
+void print_help() {
+  // clang-format off
   app_summary() << "usage:" << '\n';
   app_summary() << "  check_spo [-hvV] [-g \"n0 n1 n2\"] [-n steps]"             << '\n';
   app_summary() << "             [-r rmax] [-s seed]"                            << '\n';
@@ -45,14 +44,12 @@ void print_help()
   app_summary() << "  -s  set the random seed.           default: 11"            << '\n';
   app_summary() << "  -v  verbose output"                                        << '\n';
   app_summary() << "  -V  print version information and exit"                    << '\n';
-  //clang-format on
+  // clang-format on
 
   exit(1); // print help and exit
 }
 
-int main(int argc, char **argv)
-{
-
+int main(int argc, char **argv) {
 
   // clang-format off
   typedef QMCTraits::RealType           RealType;
@@ -64,40 +61,40 @@ int main(int argc, char **argv)
 
   // use the global generator
 
-  int na      = 1;
-  int nb      = 1;
-  int nc      = 1;
-  int nsteps  = 100;
-  int iseed   = 11;
+  int na = 1;
+  int nb = 1;
+  int nc = 1;
+  int nsteps = 100;
+  int iseed = 11;
   RealType Rmax(1.7);
   int nx = 37, ny = 37, nz = 37;
   // thread blocking
   // int team_size=1; //default is 1
   int tileSize = -1;
-  int team_size   = 1;
+  int team_size = 1;
 
   bool verbose = false;
 
-  if (!comm.root())
-  {
+  if (!comm.root()) {
     outputManager.shutOff();
   }
 
   int opt;
-  while(optind < argc)
-  {
-    if ((opt = getopt(argc, argv, "hvVa:c:f:g:n:r:s:")) != -1)
-    {
-      switch (opt)
-      {
-      case 'a': tileSize = atoi(optarg); break;
+  while (optind < argc) {
+    if ((opt = getopt(argc, argv, "hvVa:c:f:g:n:r:s:")) != -1) {
+      switch (opt) {
+      case 'a':
+        tileSize = atoi(optarg);
+        break;
       case 'c': // number of members per team
         team_size = atoi(optarg);
         break;
       case 'g': // tiling1 tiling2 tiling3
         sscanf(optarg, "%d %d %d", &na, &nb, &nc);
         break;
-      case 'h': print_help(); break;
+      case 'h':
+        print_help();
+        break;
       case 'n':
         nsteps = atoi(optarg);
         break;
@@ -107,7 +104,9 @@ int main(int argc, char **argv)
       case 's':
         iseed = atoi(optarg);
         break;
-      case 'v': verbose = true; break;
+      case 'v':
+        verbose = true;
+        break;
       case 'V':
         print_version(true);
         return 1;
@@ -115,8 +114,7 @@ int main(int argc, char **argv)
       default:
         print_help();
       }
-    }
-    else // disallow non-option arguments
+    } else // disallow non-option arguments
     {
       app_error() << "Non-option arguments not allowed" << endl;
       print_help();
@@ -132,8 +130,7 @@ int main(int argc, char **argv)
   Tensor<int, 3> tmat(na, 0, 0, 0, nb, 0, 0, 0, nc);
 
   // turn off output
-  if (omp_get_max_threads() > 1)
-  {
+  if (omp_get_max_threads() > 1) {
     outputManager.pause();
   }
 
@@ -152,10 +149,10 @@ int main(int argc, char **argv)
     Tensor<OHMMS_PRECISION, 3> lattice_b;
     ParticleSet ions;
     OHMMS_PRECISION scale = 1.0;
-    lattice_b             = tile_cell(ions, tmat, scale);
-    const int norb        = count_electrons(ions, 1) / 2;
-    tileSize              = (tileSize > 0) ? tileSize : norb;
-    nTiles                = norb / tileSize;
+    lattice_b = tile_cell(ions, tmat, scale);
+    const int norb = count_electrons(ions, 1) / 2;
+    tileSize = (tileSize > 0) ? tileSize : norb;
+    nTiles = norb / tileSize;
     app_summary() << "\nNumber of orbitals/splines = " << norb
                   << " and Tile size = " << tileSize
                   << " and Number of tiles = " << nTiles
@@ -169,18 +166,16 @@ int main(int argc, char **argv)
   double nspheremoves = 0;
   double dNumVGHCalls = 0;
 
-  double evalV_v_err   = 0.0;
+  double evalV_v_err = 0.0;
   double evalVGH_v_err = 0.0;
   double evalVGH_g_err = 0.0;
   double evalVGH_h_err = 0.0;
 
-// clang-format off
-  #pragma omp parallel reduction(+:ratio,nspheremoves,dNumVGHCalls) \
+#pragma omp parallel reduction(+:ratio,nspheremoves,dNumVGHCalls) \
    reduction(+:evalV_v_err,evalVGH_v_err,evalVGH_g_err,evalVGH_h_err)
-  // clang-format on
   {
-    const int np     = omp_get_num_threads();
-    const int ip     = omp_get_thread_num();
+    const int np = omp_get_num_threads();
+    const int ip = omp_get_thread_num();
     const int team_id = ip / team_size;
     const int member_id = ip % team_size;
 
@@ -189,11 +184,11 @@ int main(int argc, char **argv)
 
     ParticleSet ions, els;
     const OHMMS_PRECISION scale = 1.0;
-    ions.Lattice.BoxBConds      = 1;
+    ions.Lattice.BoxBConds = 1;
     tile_cell(ions, tmat, scale);
 
     const int nions = ions.getTotalNum();
-    const int nels  = count_electrons(ions, 1);
+    const int nels = count_electrons(ions, 1);
     const int nels3 = 3 * nels;
 
     { // create up/down electrons
@@ -219,7 +214,8 @@ int main(int argc, char **argv)
     spo_ref_type spo_ref(spo_ref_main, team_size, member_id);
 
     // use teams
-    // if(team_size>1 && team_size>=nTiles ) spo.set_range(team_size,ip%team_size);
+    // if(team_size>1 && team_size>=nTiles )
+    // spo.set_range(team_size,ip%team_size);
 
     // this is the cutoff from the non-local PP
     const int nknots(ecp.size());
@@ -228,7 +224,7 @@ int main(int argc, char **argv)
     ParticlePos_t rOnSphere(nknots);
 
     RealType sqrttau = 2.0;
-    RealType accept  = 0.5;
+    RealType accept = 0.5;
 
     vector<RealType> ur(nels);
     random_th.generate_uniform(ur.data(), nels);
@@ -237,21 +233,18 @@ int main(int argc, char **argv)
 
     int my_accepted = 0, my_vals = 0;
 
-    for (int mc = 0; mc < nsteps; ++mc)
-    {
+    for (int mc = 0; mc < nsteps; ++mc) {
       random_th.generate_normal(&delta[0][0], nels3);
       random_th.generate_uniform(ur.data(), nels);
 
       // VMC
-      for (int iel = 0; iel < nels; ++iel)
-      {
+      for (int iel = 0; iel < nels; ++iel) {
         PosType pos = els.R[iel] + sqrttau * delta[iel];
         spo.evaluate_vgh(pos);
         spo_ref.evaluate_vgh(pos);
         // accumulate error
         for (int ib = 0; ib < spo.nBlocks; ib++)
-          for (int n = 0; n < spo.nSplinesPerBlock; n++)
-          {
+          for (int n = 0; n < spo.nSplinesPerBlock; n++) {
             // value
             evalVGH_v_err +=
                 std::fabs((*spo.psi[ib])[n] - (*spo_ref.psi[ib])[n]);
@@ -276,8 +269,7 @@ int main(int argc, char **argv)
             evalVGH_h_err += std::fabs(spo.hess[ib]->data(5)[n] -
                                        spo_ref.hess[ib]->data(5)[n]);
           }
-        if (ur[iel] > accept)
-        {
+        if (ur[iel] > accept) {
           els.R[iel] = pos;
           my_accepted++;
         }
@@ -285,17 +277,14 @@ int main(int argc, char **argv)
 
       random_th.generate_uniform(ur.data(), nels);
       ecp.randomize(rOnSphere); // pick random sphere
-      for (int iat = 0, kat = 0; iat < nions; ++iat)
-      {
+      for (int iat = 0, kat = 0; iat < nions; ++iat) {
         const int nnF = static_cast<int>(ur[kat++] * zval);
-        RealType r    = Rmax * ur[kat++];
-        auto centerP  = ions.R[iat];
+        RealType r = Rmax * ur[kat++];
+        auto centerP = ions.R[iat];
         my_vals += (nnF * nknots);
 
-        for (int nn = 0; nn < nnF; ++nn)
-        {
-          for (int k = 0; k < nknots; k++)
-          {
+        for (int nn = 0; nn < nnF; ++nn) {
+          for (int k = 0; k < nknots; k++) {
             PosType pos = centerP + r * rOnSphere[k];
             spo.evaluate_v(pos);
             spo_ref.evaluate_v(pos);
@@ -323,38 +312,35 @@ int main(int argc, char **argv)
   evalVGH_g_err /= dNumVGHCalls;
   evalVGH_h_err /= dNumVGHCalls;
 
-  int np                     = omp_get_max_threads();
+  int np = omp_get_max_threads();
   constexpr RealType small_v = std::numeric_limits<RealType>::epsilon() * 1e4;
   constexpr RealType small_g = std::numeric_limits<RealType>::epsilon() * 3e6;
   constexpr RealType small_h = std::numeric_limits<RealType>::epsilon() * 6e8;
-  int nfail                  = 0;
+  int nfail = 0;
   app_summary() << std::endl;
-  if (evalV_v_err / np > small_v)
-  {
+  if (evalV_v_err / np > small_v) {
     cout << "Fail in evaluate_v, V error =" << evalV_v_err / np << std::endl;
     nfail = 1;
   }
-  if (evalVGH_v_err / np > small_v)
-  {
+  if (evalVGH_v_err / np > small_v) {
     cout << "Fail in evaluate_vgh, V error =" << evalVGH_v_err / np
          << std::endl;
     nfail += 1;
   }
-  if (evalVGH_g_err / np > small_g)
-  {
+  if (evalVGH_g_err / np > small_g) {
     cout << "Fail in evaluate_vgh, G error =" << evalVGH_g_err / np
          << std::endl;
     nfail += 1;
   }
-  if (evalVGH_h_err / np > small_h)
-  {
+  if (evalVGH_h_err / np > small_h) {
     cout << "Fail in evaluate_vgh, H error =" << evalVGH_h_err / np
          << std::endl;
     nfail += 1;
   }
   comm.reduce(nfail);
 
-  if (nfail == 0) app_summary() << "All checks passed for spo" << std::endl;
+  if (nfail == 0)
+    app_summary() << "All checks passed for spo" << std::endl;
 
   return 0;
 }

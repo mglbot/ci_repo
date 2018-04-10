@@ -21,8 +21,7 @@
 #include "Particle/ParticleSet.h"
 #include "Utilities/PooledData.h"
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
 /** Class to manage multiple DistanceTableData objects.
  *
@@ -40,8 +39,7 @@ namespace qmcplusplus
  * to generically control the crystalline structure.
  */
 // struct DistanceTable
-namespace DistanceTable
-{
+namespace DistanceTable {
 /// add a named DistanceTableData_t of Symmectric type
 DistanceTableData *add(ParticleSet &s,
                        int dt_type); //, const char* aname = NULL);
@@ -49,7 +47,7 @@ DistanceTableData *add(ParticleSet &s,
 /// add a named DistanceTableData_t of Asymmectric type
 DistanceTableData *add(const ParticleSet &s, ParticleSet &t,
                        int dt_type); //, const char* aname = NULL);
-}
+} // namespace DistanceTable
 
 /// free function to create a distable table of s-s
 DistanceTableData *createDistanceTable(ParticleSet &s, int dt_type);
@@ -57,5 +55,5 @@ DistanceTableData *createDistanceTable(ParticleSet &s, int dt_type);
 /// free function create a distable table of s-t
 DistanceTableData *createDistanceTable(const ParticleSet &s, ParticleSet &t,
                                        int dt_type);
-}
+} // namespace qmcplusplus
 #endif

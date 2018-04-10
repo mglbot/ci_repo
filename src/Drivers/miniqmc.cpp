@@ -119,8 +119,7 @@
 using namespace std;
 using namespace qmcplusplus;
 
-enum MiniQMCTimers
-{
+enum MiniQMCTimers {
   Timer_Total,
   Timer_Diffusion,
   Timer_GL,
@@ -148,9 +147,8 @@ TimerNameList_t<MiniQMCTimers> MiniQMCTimerNames = {
     {Timer_DT, "Distance Tables"},
 };
 
-void print_help()
-{
-  //clang-format off
+void print_help() {
+  // clang-format off
   app_summary() << "usage:" << '\n';
   app_summary() << "  miniqmc   [-hvV] [-g \"n0 n1 n2\"] [-n steps]"             << '\n';
   app_summary() << "            [-N substeps] [-r rmax] [-s seed]"               << '\n';
@@ -163,12 +161,10 @@ void print_help()
   app_summary() << "  -s  set the random seed.           default: 11"            << '\n';
   app_summary() << "  -v  verbose output"                                        << '\n';
   app_summary() << "  -V  print version information and exit"                    << '\n';
-  //clang-format on
+  // clang-format on
 }
 
-int main(int argc, char **argv)
-{
-
+int main(int argc, char **argv) {
 
   // clang-format off
   typedef QMCTraits::RealType           RealType;
@@ -180,15 +176,15 @@ int main(int argc, char **argv)
 
   // use the global generator
 
-  int na      = 1;
-  int nb      = 1;
-  int nc      = 1;
-  int nsteps  = 100;
-  int iseed   = 11;
+  int na = 1;
+  int nb = 1;
+  int nc = 1;
+  int nsteps = 100;
+  int iseed = 11;
   int nx = 37, ny = 37, nz = 37;
   // thread blocking
   // int team_size=1; //default is 1
-  int tileSize  = -1;
+  int tileSize = -1;
   int team_size = 1;
   int nsubsteps = 1;
   // Set cutoff for NLPP use.
@@ -199,19 +195,17 @@ int main(int argc, char **argv)
 
   bool verbose = false;
 
-  if (!comm.root())
-  {
+  if (!comm.root()) {
     outputManager.shutOff();
   }
 
   int opt;
-  while(optind < argc)
-  {
-    if ((opt = getopt(argc, argv, "hvVa:c:g:n:N:r:s:")) != -1)
-    {
-      switch (opt)
-      {
-      case 'a': tileSize = atoi(optarg); break;
+  while (optind < argc) {
+    if ((opt = getopt(argc, argv, "hvVa:c:g:n:N:r:s:")) != -1) {
+      switch (opt) {
+      case 'a':
+        tileSize = atoi(optarg);
+        break;
       case 'c': // number of members per team
         team_size = atoi(optarg);
         break;
@@ -234,7 +228,9 @@ int main(int argc, char **argv)
       case 's':
         iseed = atoi(optarg);
         break;
-      case 'v': verbose = true; break;
+      case 'v':
+        verbose = true;
+        break;
       case 'V':
         print_version(true);
         return 1;
@@ -243,8 +239,7 @@ int main(int argc, char **argv)
         print_help();
         return 1;
       }
-    }
-    else // disallow non-option arguments
+    } else // disallow non-option arguments
     {
       app_error() << "Non-option arguments not allowed" << endl;
       print_help();
@@ -259,7 +254,6 @@ int main(int argc, char **argv)
   TimerList_t Timers;
   setup_timers(Timers, MiniQMCTimerNames, timer_level_coarse);
 
-
   if (verbose) {
     outputManager.setVerbosity(Verbosity::HIGH);
   }
@@ -267,11 +261,9 @@ int main(int argc, char **argv)
   print_version(verbose);
 
   // turn off output
-  if (!verbose || omp_get_max_threads() > 1)
-  {
+  if (!verbose || omp_get_max_threads() > 1) {
     outputManager.shutOff();
   }
-
 
   int nthreads = omp_get_max_threads();
 
@@ -286,11 +278,11 @@ int main(int argc, char **argv)
     Tensor<OHMMS_PRECISION, 3> lattice_b;
     ParticleSet ions;
     OHMMS_PRECISION scale = 1.0;
-    lattice_b             = tile_cell(ions, tmat, scale);
-    const int nels        = count_electrons(ions, 1);
-    const int norb        = nels / 2;
-    tileSize              = (tileSize > 0) ? tileSize : norb;
-    nTiles                = norb / tileSize;
+    lattice_b = tile_cell(ions, tmat, scale);
+    const int nels = count_electrons(ions, 1);
+    const int norb = nels / 2;
+    tileSize = (tileSize > 0) ? tileSize : norb;
+    nTiles = norb / tileSize;
 
     number_of_electrons = nels;
 
@@ -318,12 +310,12 @@ int main(int argc, char **argv)
 
   if (!useRef)
     app_summary() << "Using SoA distance table, Jastrow + einspline, " << endl
-                << "and determinant update." << endl;
+                  << "and determinant update." << endl;
   else
-    app_summary() << "Using the reference implementation for Jastrow, " << endl
-                << "determinant update, and distance table + einspline of the "
-                << endl
-                << "reference implementation " << endl;
+    app_summary()
+        << "Using the reference implementation for Jastrow, " << endl
+        << "determinant update, and distance table + einspline of the " << endl
+        << "reference implementation " << endl;
 
   Timers[Timer_Total]->start();
 #pragma omp parallel
@@ -343,12 +335,12 @@ int main(int argc, char **argv)
     RandomGenerator<RealType> random_th(myPrimes[ip]);
 
     ions.Lattice.BoxBConds = 1;
-    OHMMS_PRECISION scale  = 1.0;
+    OHMMS_PRECISION scale = 1.0;
     tile_cell(ions, tmat, scale);
     ions.RSoA = ions.R; // fill the SoA
 
     const int nions = ions.getTotalNum();
-    const int nels  = count_electrons(ions, 1);
+    const int nels = count_electrons(ions, 1);
     const int nels3 = 3 * nels;
 
     { // create up/down electrons
@@ -366,13 +358,10 @@ int main(int argc, char **argv)
 
     WaveFunctionBase *wavefunction;
 
-    if (useRef)
-    {
+    if (useRef) {
       wavefunction =
           new miniqmcreference::WaveFunctionRef(ions, els, random_th);
-    }
-    else
-    {
+    } else {
       wavefunction = new WaveFunction(ions, els, random_th);
     }
 
@@ -394,7 +383,7 @@ int main(int argc, char **argv)
     ParticlePos_t rOnSphere(nknots);
 
     RealType sqrttau = std::sqrt(tau);
-    RealType accept  = 0.5;
+    RealType accept = 0.5;
 
     aligned_vector<RealType> ur(nels);
     random_th.generate_uniform(ur.data(), nels);
@@ -403,14 +392,12 @@ int main(int argc, char **argv)
     wavefunction->evaluateLog(els);
 
     int my_accepted = 0;
-    for (int mc = 0; mc < nsteps; ++mc)
-    {
+    for (int mc = 0; mc < nsteps; ++mc) {
       Timers[Timer_Diffusion]->start();
       for (int l = 0; l < nsubsteps; ++l) // drift-and-diffusion
       {
         random_th.generate_normal(&delta[0][0], nels3);
-        for (int iel = 0; iel < nels; ++iel)
-        {
+        for (int iel = 0; iel < nels; ++iel) {
           // Operate on electron with index iel
           Timers[Timer_DT]->start();
           els.setActive(iel);
@@ -428,7 +415,8 @@ int main(int argc, char **argv)
           bool isValid = els.makeMoveAndCheck(iel, dr);
           Timers[Timer_DT]->stop();
 
-          if (!isValid) continue;
+          if (!isValid)
+            continue;
 
           // Compute gradient at the trial position
           Timers[Timer_ratioGrad]->start();
@@ -455,9 +443,7 @@ int main(int argc, char **argv)
             els.acceptMove(iel);
             Timers[Timer_DT]->stop();
             my_accepted++;
-          }
-          else
-          {
+          } else {
             els.rejectMove(iel);
             wavefunction->restore(iel);
           }
@@ -481,18 +467,14 @@ int main(int argc, char **argv)
       const DistanceTableData *d_ie = wavefunction->d_ie;
 
       Timers[Timer_ECP]->start();
-      for (int iat = 0; iat < nions; ++iat)
-      {
+      for (int iat = 0; iat < nions; ++iat) {
         const auto centerP = ions.R[iat];
-        for (int nj = 0, jmax = d_ie->nadj(iat); nj < jmax; ++nj)
-        {
+        for (int nj = 0, jmax = d_ie->nadj(iat); nj < jmax; ++nj) {
           const auto r = d_ie->distance(iat, nj);
-          if (r < Rmax)
-          {
+          if (r < Rmax) {
             const int iel = d_ie->iadj(iat, nj);
             const auto dr = d_ie->displacement(iat, nj);
-            for (int k = 0; k < nknots; k++)
-            {
+            for (int k = 0; k < nknots; k++) {
               PosType deltar(r * rOnSphere[k] - dr);
 
               Timers[Timer_DT]->start();
@@ -525,8 +507,7 @@ int main(int argc, char **argv)
   } // end of omp parallel
   Timers[Timer_Total]->stop();
 
-  if (comm.root())
-  {
+  if (comm.root()) {
     cout << "================================== " << endl;
 
     TimerManager.print();
@@ -542,20 +523,24 @@ int main(int argc, char **argv)
     XMLNode *particle_info = doc.NewElement("particles");
     resources->InsertEndChild(particle_info);
     XMLNode *electron_info = doc.NewElement("particle");
-    electron_info->InsertEndChild(MakeTextElement(doc,"name","e"));
-    electron_info->InsertEndChild(MakeTextElement(doc,"size",std::to_string(number_of_electrons)));
+    electron_info->InsertEndChild(MakeTextElement(doc, "name", "e"));
+    electron_info->InsertEndChild(
+        MakeTextElement(doc, "size", std::to_string(number_of_electrons)));
     particle_info->InsertEndChild(electron_info);
-
 
     XMLNode *run_info = doc.NewElement("run");
     XMLNode *driver_info = doc.NewElement("driver");
-    driver_info->InsertEndChild(MakeTextElement(doc,"name","miniqmc"));
-    driver_info->InsertEndChild(MakeTextElement(doc,"steps",std::to_string(nsteps)));
-    driver_info->InsertEndChild(MakeTextElement(doc,"substeps",std::to_string(nsubsteps)));
+    driver_info->InsertEndChild(MakeTextElement(doc, "name", "miniqmc"));
+    driver_info->InsertEndChild(
+        MakeTextElement(doc, "steps", std::to_string(nsteps)));
+    driver_info->InsertEndChild(
+        MakeTextElement(doc, "substeps", std::to_string(nsubsteps)));
     run_info->InsertEndChild(driver_info);
     resources->InsertEndChild(run_info);
 
-    std::string info_name = "info_" + std::to_string(na) + "_" + std::to_string(nb) + "_" + std::to_string(nc) + ".xml";
+    std::string info_name = "info_" + std::to_string(na) + "_" +
+                            std::to_string(nb) + "_" + std::to_string(nc) +
+                            ".xml";
     doc.SaveFile(info_name.c_str());
   }
 

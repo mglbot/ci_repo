@@ -25,9 +25,8 @@
 
 /*! \class SpeciesSet
  *  \brief A class containing a set of attributes for a set of species.
-*/
-class SpeciesSet
-{
+ */
+class SpeciesSet {
 
 public:
   typedef double Scalar_t;
@@ -91,8 +90,7 @@ public:
    * @param j species index
    * @return the value of i-th attribute for the j-th species
    */
-  inline double operator()(int i, int j) const
-  {
+  inline double operator()(int i, int j) const {
     return d_attrib[i]->operator[](j);
   }
 
@@ -114,29 +112,26 @@ public:
    * @return an ID for the species with name.
    * @brief if the input species is not found, add a new species
    */
-  inline int findSpecies(const std::string &name) const
-  {
+  inline int findSpecies(const std::string &name) const {
     int i = 0;
-    while (i < speciesName.size())
-    {
-      if (speciesName[i] == name) return i;
+    while (i < speciesName.size()) {
+      if (speciesName[i] == name)
+        return i;
       i++;
     }
     return i;
   }
 
-  inline int findAttribute(const std::string &name) const
-  {
+  inline int findAttribute(const std::string &name) const {
     return findIndex(name, attribName);
   }
 
   inline int findIndex(const std::string &name,
-                       const std::vector<std::string> &alist) const
-  {
+                       const std::vector<std::string> &alist) const {
     int i = 0;
-    while (i < alist.size())
-    {
-      if (alist[i] == name) return i;
+    while (i < alist.size()) {
+      if (alist[i] == name)
+        return i;
       i++;
     }
     return -1;

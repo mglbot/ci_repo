@@ -22,17 +22,16 @@
 #include <Utilities/tinyxml/tinyxml2.h>
 #include <string>
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
-using tinyxml2::XMLNode;
 using tinyxml2::XMLDocument;
 using tinyxml2::XMLElement;
+using tinyxml2::XMLNode;
 using tinyxml2::XMLText;
 
+XMLNode *MakeTextElement(XMLDocument &doc, const std::string &name,
+                         const std::string &value);
 
-XMLNode *MakeTextElement(XMLDocument &doc, const std::string &name, const std::string &value);
-
-}
+} // namespace qmcplusplus
 
 #endif

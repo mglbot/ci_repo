@@ -1,29 +1,57 @@
+
 dist: trusty
-language:
-  - cpp
-compiler:
-  - gcc
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - gcc-7
-      - g++-7
-      - cmake
-      - libblas-dev
-      - liblapack-dev
+language: cpp
 
-install: true
-
-script:
-  # Link gcc-6 and g++-6 to their standard commands
-  # - ln -sf /usr/bin/gcc-7 /usr/local/bin/gcc
-  # - ln -sf /usr/bin/g++-7 /usr/local/bin/g++
-  # Export CC and CXX to tell cmake which compiler to use
-  - export CC=/usr/bin/gcc-7
-  - export CXX=/usr/bin/g++-7
-  # Check versions of gcc, g++ and cmake
-  - gcc -v && g++ -v && cmake --version
-  # Run your build commands next
-  - ./testing/travis.sh
+jobs:
+  include:
+    - stage: format
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-6.0
+          packages:
+            - clang-format-6.0
+      script:
+        - ./testing/travis-format.sh
+    - stage: build
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-7
+            - g++-7
+            - cmake
+            - cmake-data
+            - libblas-dev
+            - liblapack-dev
+      env:
+        - MATRIX_EVAL="CC=/usr/bin/gcc-7 CXX=/usr/bin/g++-7"
+      before_install:
+        - eval "${MATRIX_EVAL}" # necessary b/c travis overwrites CC/CXX
+      script:
+        - ./testing/travis-build.sh
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-6.0
+          packages:
+            - clang-6.0
+            - cmake
+            - cmake-data
+            - libblas-dev
+            - liblapack-dev
+            - libiomp-dev
+      env:
+        - MATRIX_EVAL="CC=/usr/bin/clang-6.0 CXX=/usr/bin/clang++-6.0"
+        - CFLAGS="-fopenmp=libiomp5"
+        - CXXFLAGS="-fopenmp=libiomp5"
+      before_install:
+        - eval "${MATRIX_EVAL}" # necessary b/c travis overwrites CC/CXX
+      script:
+        - ./testing/travis-build.sh

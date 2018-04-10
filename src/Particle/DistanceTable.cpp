@@ -24,15 +24,13 @@
 #include "Particle/DistanceTable.h"
 #include "Particle/DistanceTableData.h"
 #include "Particle/Lattice/ParticleBConds.h"
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
 /** Adding SymmetricDTD to the list, e.g., el-el distance table
  *\param s source/target particle set
  *\return DistanceTableData*
  */
-DistanceTableData *DistanceTable::add(ParticleSet &s, int dt_type)
-{
+DistanceTableData *DistanceTable::add(ParticleSet &s, int dt_type) {
   int tid = s.addTable(s, dt_type);
   return s.DistTables[tid];
 }
@@ -43,8 +41,7 @@ DistanceTableData *DistanceTable::add(ParticleSet &s, int dt_type)
  *\return DistanceTableData*
  */
 DistanceTableData *DistanceTable::add(const ParticleSet &s, ParticleSet &t,
-                                      int dt_type)
-{
+                                      int dt_type) {
   int tid = t.addTable(s, dt_type);
   return t.DistTables[tid];
 }

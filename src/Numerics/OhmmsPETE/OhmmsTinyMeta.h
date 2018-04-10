@@ -16,8 +16,7 @@
 #ifndef OHMMS_TINY_META_H
 #define OHMMS_TINY_META_H
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 // clang-format off
 /* \note
  *  For optimization, operators for TinyVector and Tensor classes are specalized for D.

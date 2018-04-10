@@ -19,38 +19,34 @@
 #define QMCPLUSPLUS_DTDIMPL_AA_H
 #include "Utilities/SIMD/algorithm.hpp"
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
 /**@ingroup nnlist
  * @brief A derived classe from DistacneTableData, specialized for dense case
  */
 template <typename T, unsigned D, int SC>
-struct DistanceTableAA : public DTD_BConds<T, D, SC>,
-                            public DistanceTableData
-{
+struct DistanceTableAA : public DTD_BConds<T, D, SC>, public DistanceTableData {
 
   int Ntargets;
   int Ntargets_padded;
   int BlockSize;
 
   DistanceTableAA(ParticleSet &target)
-      : DTD_BConds<T, D, SC>(target.Lattice), DistanceTableData(target, target)
-  {
+      : DTD_BConds<T, D, SC>(target.Lattice),
+        DistanceTableData(target, target) {
     resize(target.getTotalNum());
   }
 
 #if (__cplusplus >= 201103L)
-  DistanceTableAA()                           = delete;
+  DistanceTableAA() = delete;
   DistanceTableAA(const DistanceTableAA &) = delete;
 #endif
   ~DistanceTableAA() {}
 
-  void resize(int n)
-  {
+  void resize(int n) {
     N[SourceIndex] = N[VisitorIndex] = Ntargets = n;
-    Ntargets_padded                             = getAlignedSize<T>(n);
-    BlockSize                                   = Ntargets_padded * D;
+    Ntargets_padded = getAlignedSize<T>(n);
+    BlockSize = Ntargets_padded * D;
     Distances.resize(Ntargets, Ntargets_padded);
 
     memoryPool.resize(Ntargets * BlockSize);
@@ -63,12 +59,10 @@ struct DistanceTableAA : public DTD_BConds<T, D, SC>,
     Temp_dr.resize(Ntargets);
   }
 
-  inline void evaluate(ParticleSet &P)
-  {
+  inline void evaluate(ParticleSet &P) {
     CONSTEXPR T BigR = std::numeric_limits<T>::max();
     // P.RSoA.copyIn(P.R);
-    for (int iat = 0; iat < Ntargets; ++iat)
-    {
+    for (int iat = 0; iat < Ntargets; ++iat) {
       DTD_BConds<T, D, SC>::computeDistances(P.R[iat], P.RSoA, Distances[iat],
                                              Displacements[iat], 0, Ntargets,
                                              iat);
@@ -76,8 +70,7 @@ struct DistanceTableAA : public DTD_BConds<T, D, SC>,
     }
   }
 
-  inline void evaluate(ParticleSet &P, IndexType jat)
-  {
+  inline void evaluate(ParticleSet &P, IndexType jat) {
     activePtcl = jat;
     DTD_BConds<T, D, SC>::computeDistances(
         P.R[jat], P.RSoA, Distances[jat], Displacements[jat], 0, Ntargets, jat);
@@ -85,25 +78,23 @@ struct DistanceTableAA : public DTD_BConds<T, D, SC>,
   }
 
   inline void moveOnSphere(const ParticleSet &P, const PosType &rnew,
-                           IndexType jat)
-  {
+                           IndexType jat) {
     DTD_BConds<T, D, SC>::computeDistances(rnew, P.RSoA, Temp_r.data(), Temp_dr,
                                            0, Ntargets, jat);
     Temp_r[jat] = std::numeric_limits<T>::max(); // assign a big number
   }
 
   /// evaluate the temporary pair relations
-  inline void move(const ParticleSet &P, const PosType &rnew, IndexType jat)
-  {
+  inline void move(const ParticleSet &P, const PosType &rnew, IndexType jat) {
     //#pragma omp master
     activePtcl = jat;
     moveOnSphere(P, rnew, jat);
   }
 
   /// update the iat-th row for iat=[0,iat-1)
-  inline void update(IndexType iat)
-  {
-    if (iat == 0 || iat != activePtcl) return;
+  inline void update(IndexType iat) {
+    if (iat == 0 || iat != activePtcl)
+      return;
     // update by a cache line
     const int nupdate = getAlignedSize<T>(iat);
     simd::copy_n(Temp_r.data(), nupdate, Distances[iat]);
@@ -111,5 +102,5 @@ struct DistanceTableAA : public DTD_BConds<T, D, SC>,
       simd::copy_n(Temp_dr.data(idim), nupdate, Displacements[iat].data(idim));
   }
 };
-}
+} // namespace qmcplusplus
 #endif

@@ -11,11 +11,9 @@
 // -*- C++ -*-
 #include <Particle/ParticleIOUtility.h>
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
-template <typename T> T count_electrons(const ParticleSet &ions, T scale)
-{
+template <typename T> T count_electrons(const ParticleSet &ions, T scale) {
   return ions.getTotalNum() * scale * 4;
 }
 
@@ -25,18 +23,17 @@ template <typename T> T count_electrons(const ParticleSet &ions, T scale)
  * @param scale scaling factor
  */
 template <typename T>
-Tensor<T, 3> tile_cell(ParticleSet &ions, Tensor<int, 3> &tmat, T scale)
-{
+Tensor<T, 3> tile_cell(ParticleSet &ions, Tensor<int, 3> &tmat, T scale) {
   Tensor<T, 3> graphite = {4.65099, 0.0, 0.0, -2.3255,    4.02788,
                            0.0,     0.0, 0.0, 12.67609393};
   ions.Lattice.BoxBConds = 1;
   ions.Lattice.set(graphite);
   ions.create(4);
   ions.R.InUnit = 0;
-  ions.R[0]     = {0.0, 0.0, 0.0};
-  ions.R[1]     = {0.0, 2.68525, 0.0};
-  ions.R[2]     = {0.0, 0.0, 6.33805};
-  ions.R[3]     = {2.3255, 1.34263, 6.33805};
+  ions.R[0] = {0.0, 0.0, 0.0};
+  ions.R[1] = {0.0, 2.68525, 0.0};
+  ions.R[2] = {0.0, 0.0, 6.33805};
+  ions.R[3] = {2.3255, 1.34263, 6.33805};
 
   SpeciesSet &species(ions.getSpeciesSet());
   int icharge = species.addAttribute("charge"); // charge_tag);
@@ -49,20 +46,19 @@ Tensor<T, 3> tile_cell(ParticleSet &ions, Tensor<int, 3> &tmat, T scale)
   return graphite;
 }
 
-template <typename PT> void graphite_4x4(PT &R)
-{
+template <typename PT> void graphite_4x4(PT &R) {
   typedef typename PT::Type_t postype;
 
-  R[0]  = postype(0.000000, 0.000000, 0.000000);
-  R[1]  = postype(-0.000000, 2.685253, 0.000000);
-  R[2]  = postype(0.000000, 0.000000, 6.338047);
-  R[3]  = postype(2.325497, 1.342626, 6.338047);
-  R[4]  = postype(-2.325497, 4.027879, 0.000000);
-  R[5]  = postype(-2.325497, 6.713132, 0.000000);
-  R[6]  = postype(-2.325497, 4.027879, 6.338047);
-  R[7]  = postype(0.000000, 5.370505, 6.338047);
-  R[8]  = postype(-4.650994, 8.055758, 0.000000);
-  R[9]  = postype(-4.650994, 10.741010, 0.000000);
+  R[0] = postype(0.000000, 0.000000, 0.000000);
+  R[1] = postype(-0.000000, 2.685253, 0.000000);
+  R[2] = postype(0.000000, 0.000000, 6.338047);
+  R[3] = postype(2.325497, 1.342626, 6.338047);
+  R[4] = postype(-2.325497, 4.027879, 0.000000);
+  R[5] = postype(-2.325497, 6.713132, 0.000000);
+  R[6] = postype(-2.325497, 4.027879, 6.338047);
+  R[7] = postype(0.000000, 5.370505, 6.338047);
+  R[8] = postype(-4.650994, 8.055758, 0.000000);
+  R[9] = postype(-4.650994, 10.741010, 0.000000);
   R[10] = postype(-4.650994, 8.055758, 6.338047);
   R[11] = postype(-2.325497, 9.398384, 6.338047);
   R[12] = postype(-6.976491, 12.083637, 0.000000);
@@ -119,11 +115,10 @@ template <typename PT> void graphite_4x4(PT &R)
   R[63] = postype(9.301988, 13.426263, 6.338047);
 }
 
-template <typename JeeIType> void buildJeeI(JeeIType &JeeI, double rcut)
-{
-  using Func     = typename JeeIType::FuncType;
+template <typename JeeIType> void buildJeeI(JeeIType &JeeI, double rcut) {
+  using Func = typename JeeIType::FuncType;
   using RealType = typename Func::real_type;
-  rcut           = std::min(rcut, 6.0);
+  rcut = std::min(rcut, 6.0);
   {
     std::vector<RealType> params = {
         8.227710241e-06,  2.480817653e-06,  -5.354068112e-06, -1.112644787e-05,
@@ -133,7 +128,7 @@ template <typename JeeIType> void buildJeeI(JeeIType &JeeI, double rcut)
         2.801423724e-06,  4.577282736e-06,  7.634608083e-06,  -9.510673173e-07,
         -2.344131575e-06, -1.878777219e-06, 3.937363358e-07,  5.065353773e-07,
         5.086724869e-07,  -1.358768154e-07};
-    Func *functor          = new Func;
+    Func *functor = new Func;
     functor->cutoff_radius = rcut;
     functor->resize(3, 3);
     functor->Parameters = params;
@@ -150,7 +145,7 @@ template <typename JeeIType> void buildJeeI(JeeIType &JeeI, double rcut)
         3.786332474e-05,  -1.418336941e-05, 2.282691374e-05, 1.29239286e-06,
         -4.93580873e-06,  -3.052539228e-06, 9.870288001e-08, 1.844286407e-06,
         2.970561871e-07,  -4.364303677e-08};
-    Func *functor          = new Func;
+    Func *functor = new Func;
     functor->cutoff_radius = rcut;
     functor->resize(3, 3);
     functor->Parameters = params;
@@ -161,13 +156,12 @@ template <typename JeeIType> void buildJeeI(JeeIType &JeeI, double rcut)
   JeeI.check_complete();
 }
 
-template <typename J2Type> void buildJ2(J2Type &J2, double rcut)
-{
-  using Func     = typename J2Type::FuncType;
+template <typename J2Type> void buildJ2(J2Type &J2, double rcut) {
+  using Func = typename J2Type::FuncType;
   using RealType = typename Func::real_type;
   const int npts = 10;
   std::string optimize("no");
-  rcut        = std::min(rcut, 6.4);
+  rcut = std::min(rcut, 6.4);
 
   { // add uu/dd
     std::vector<RealType> Y = {0.4711f, 0.3478f, 0.2445f, 0.1677f,
@@ -191,13 +185,12 @@ template <typename J2Type> void buildJ2(J2Type &J2, double rcut)
   }
 }
 
-template <typename J1Type> void buildJ1(J1Type &J1, double rcut)
-{
-  using Func     = typename J1Type::FuncType;
+template <typename J1Type> void buildJ1(J1Type &J1, double rcut) {
+  using Func = typename J1Type::FuncType;
   using RealType = typename Func::real_type;
   const int npts = 10;
   std::string optimize("no");
-  rcut        = std::min(rcut, 6.4);
+  rcut = std::min(rcut, 6.4);
 
   std::vector<RealType> Y = {0.4711f, 0.3478f, 0.2445f, 0.1677f,
                              0.1118f, 0.0733f, 0.0462f, 0.0273f,
@@ -207,4 +200,4 @@ template <typename J1Type> void buildJ1(J1Type &J1, double rcut)
   f->setupParameters(npts, rcut, -0.25, Y);
   J1.addFunc(0, f);
 }
-}
+} // namespace qmcplusplus

@@ -38,8 +38,8 @@ int posix_memalign(void **memptr, size_t alignment, size_t size);
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 
-void set_multi_UBspline_3d_s(multi_UBspline_3d_s *spline, int num, float *data)
-{
+void set_multi_UBspline_3d_s(multi_UBspline_3d_s *spline, int num,
+                             float *data) {
   int Mx = spline->x_grid.num;
   int My = spline->y_grid.num;
   int Mz = spline->z_grid.num;
@@ -64,8 +64,7 @@ void set_multi_UBspline_3d_s(multi_UBspline_3d_s *spline, int num, float *data)
 // First, solve in the X-direction
 #pragma omp parallel for
   for (int iy = 0; iy < My; iy++)
-    for (int iz = 0; iz < Mz; iz++)
-    {
+    for (int iz = 0; iz < Mz; iz++) {
       intptr_t doffset = iy * Mz + iz;
       intptr_t coffset = (iy * Nz + iz) * zs;
       find_coefs_1d_s(spline->x_grid, spline->xBC, data + doffset,
@@ -76,8 +75,7 @@ void set_multi_UBspline_3d_s(multi_UBspline_3d_s *spline, int num, float *data)
 // Now, solve in the Y-direction
 #pragma omp parallel for
   for (int ix = 0; ix < Nx; ix++)
-    for (int iz = 0; iz < Nz; iz++)
-    {
+    for (int iz = 0; iz < Nz; iz++) {
       intptr_t doffset = (ix * Ny * Nz + iz) * zs;
       intptr_t coffset = (ix * Ny * Nz + iz) * zs;
       find_coefs_1d_s(spline->y_grid, spline->yBC, coefs + doffset,
@@ -87,8 +85,7 @@ void set_multi_UBspline_3d_s(multi_UBspline_3d_s *spline, int num, float *data)
 // Now, solve in the Z-direction
 #pragma omp parallel for
   for (int ix = 0; ix < Nx; ix++)
-    for (int iy = 0; iy < Ny; iy++)
-    {
+    for (int iy = 0; iy < Ny; iy++) {
       intptr_t doffset = ((ix * Ny + iy) * Nz) * zs;
       intptr_t coffset = ((ix * Ny + iy) * Nz) * zs;
       find_coefs_1d_s(spline->z_grid, spline->zBC, coefs + doffset, zs,
@@ -97,8 +94,7 @@ void set_multi_UBspline_3d_s(multi_UBspline_3d_s *spline, int num, float *data)
 }
 
 void set_multi_UBspline_3d_s_d(multi_UBspline_3d_s *spline, int num,
-                               double *data)
-{
+                               double *data) {
 
   BCtype_d xBC, yBC, zBC;
   xBC.lCode = spline->xBC.lCode;
@@ -107,12 +103,12 @@ void set_multi_UBspline_3d_s_d(multi_UBspline_3d_s *spline, int num,
   yBC.rCode = spline->yBC.rCode;
   zBC.lCode = spline->zBC.lCode;
   zBC.rCode = spline->zBC.rCode;
-  xBC.lVal  = spline->xBC.lVal;
-  xBC.rVal  = spline->xBC.rVal;
-  yBC.lVal  = spline->yBC.lVal;
-  yBC.rVal  = spline->yBC.rVal;
-  zBC.lVal  = spline->zBC.lVal;
-  zBC.rVal  = spline->zBC.rVal;
+  xBC.lVal = spline->xBC.lVal;
+  xBC.rVal = spline->xBC.rVal;
+  yBC.lVal = spline->yBC.lVal;
+  yBC.rVal = spline->yBC.rVal;
+  zBC.lVal = spline->zBC.lVal;
+  zBC.rVal = spline->zBC.rVal;
 
   int Mx = spline->x_grid.num;
   int My = spline->y_grid.num;
@@ -137,8 +133,7 @@ void set_multi_UBspline_3d_s_d(multi_UBspline_3d_s *spline, int num,
 // First, solve in the X-direction
 #pragma omp parallel for
   for (int iy = 0; iy < My; iy++)
-    for (int iz = 0; iz < Mz; iz++)
-    {
+    for (int iz = 0; iz < Mz; iz++) {
       intptr_t doffset = iy * Mz + iz;
       intptr_t coffset = iy * Nz + iz;
       find_coefs_1d_d(spline->x_grid, xBC, data + doffset, My * Mz,
@@ -148,8 +143,7 @@ void set_multi_UBspline_3d_s_d(multi_UBspline_3d_s *spline, int num,
 // Now, solve in the Y-direction
 #pragma omp parallel for
   for (int ix = 0; ix < Nx; ix++)
-    for (int iz = 0; iz < Nz; iz++)
-    {
+    for (int iz = 0; iz < Nz; iz++) {
       intptr_t doffset = ix * Ny * Nz + iz;
       intptr_t coffset = ix * Ny * Nz + iz;
       find_coefs_1d_d(spline->y_grid, yBC, spline_tmp + doffset, Nz,
@@ -159,8 +153,7 @@ void set_multi_UBspline_3d_s_d(multi_UBspline_3d_s *spline, int num,
 // Now, solve in the Z-direction
 #pragma omp parallel for
   for (int ix = 0; ix < Nx; ix++)
-    for (int iy = 0; iy < Ny; iy++)
-    {
+    for (int iy = 0; iy < Ny; iy++) {
       intptr_t doffset = (ix * Ny + iy) * Nz;
       intptr_t coffset = (ix * Ny + iy) * Nz;
       find_coefs_1d_d(spline->z_grid, zBC, spline_tmp + doffset, 1,
@@ -170,8 +163,7 @@ void set_multi_UBspline_3d_s_d(multi_UBspline_3d_s *spline, int num,
   {
 //    const double* restrict i_ptr=spline_tmp;
 #pragma omp parallel for
-    for (int ix = 0; ix < Nx; ++ix)
-    {
+    for (int ix = 0; ix < Nx; ++ix) {
       const double *restrict i_ptr = spline_tmp + ix * Ny * Nz;
       for (int iy = 0; iy < Ny; ++iy)
         for (int iz = 0; iz < Nz; ++iz)
@@ -183,8 +175,8 @@ void set_multi_UBspline_3d_s_d(multi_UBspline_3d_s *spline, int num,
   free(spline_tmp);
 }
 
-void set_multi_UBspline_3d_d(multi_UBspline_3d_d *spline, int num, double *data)
-{
+void set_multi_UBspline_3d_d(multi_UBspline_3d_d *spline, int num,
+                             double *data) {
   int Mx = spline->x_grid.num;
   int My = spline->y_grid.num;
   int Mz = spline->z_grid.num;
@@ -204,13 +196,12 @@ void set_multi_UBspline_3d_d(multi_UBspline_3d_d *spline, int num, double *data)
     Nz = Mz + 2;
 
   double *coefs = spline->coefs + num;
-  intptr_t zs   = spline->z_stride;
+  intptr_t zs = spline->z_stride;
 
 // First, solve in the X-direction
 #pragma omp parallel for
   for (int iy = 0; iy < My; iy++)
-    for (int iz = 0; iz < Mz; iz++)
-    {
+    for (int iz = 0; iz < Mz; iz++) {
       intptr_t doffset = iy * Mz + iz;
       intptr_t coffset = (iy * Nz + iz) * zs;
       find_coefs_1d_d(spline->x_grid, spline->xBC, data + doffset,
@@ -221,8 +212,7 @@ void set_multi_UBspline_3d_d(multi_UBspline_3d_d *spline, int num, double *data)
 // Now, solve in the Y-direction
 #pragma omp parallel for
   for (int ix = 0; ix < Nx; ix++)
-    for (int iz = 0; iz < Nz; iz++)
-    {
+    for (int iz = 0; iz < Nz; iz++) {
       intptr_t doffset = (ix * Ny * Nz + iz) * zs;
       intptr_t coffset = (ix * Ny * Nz + iz) * zs;
       find_coefs_1d_d(spline->y_grid, spline->yBC, coefs + doffset,
@@ -232,8 +222,7 @@ void set_multi_UBspline_3d_d(multi_UBspline_3d_d *spline, int num, double *data)
 // Now, solve in the Z-direction
 #pragma omp parallel for
   for (int ix = 0; ix < Nx; ix++)
-    for (int iy = 0; iy < Ny; iy++)
-    {
+    for (int iy = 0; iy < Ny; iy++) {
       intptr_t doffset = (ix * Ny + iy) * Nz * zs;
       intptr_t coffset = (ix * Ny + iy) * Nz * zs;
       find_coefs_1d_d(spline->z_grid, spline->zBC, coefs + doffset,
@@ -241,8 +230,7 @@ void set_multi_UBspline_3d_d(multi_UBspline_3d_d *spline, int num, double *data)
     }
 }
 
-void destroy_multi_UBspline(Bspline *spline)
-{
+void destroy_multi_UBspline(Bspline *spline) {
   free(spline->coefs);
   free(spline);
 }

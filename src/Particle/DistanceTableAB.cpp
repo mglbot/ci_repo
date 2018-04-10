@@ -27,49 +27,40 @@
 #include "Utilities/SIMD/algorithm.hpp"
 #include "Particle/DistanceTableBA.h"
 
-namespace qmcplusplus
-{
+namespace qmcplusplus {
 
 /** Adding AsymmetricDTD to the list, e.g., el-el distance table
  *\param s source/target particle set
  *\return index of the distance table with the name
  */
 DistanceTableData *createDistanceTable(const ParticleSet &s, ParticleSet &t,
-                                       int dt_type)
-{
+                                       int dt_type) {
   typedef OHMMS_PRECISION RealType;
-  enum
-  {
-    DIM = OHMMS_DIM
-  };
+  enum { DIM = OHMMS_DIM };
   DistanceTableData *dt = 0;
   int sc = t.Lattice.SuperCellEnum;
   std::ostringstream o;
   o << "  Distance table for AB: source = " << s.getName()
     << " target = " << t.getName() << "\n";
-  if (sc == SUPERCELL_BULK)
-  {
+  if (sc == SUPERCELL_BULK) {
     o << "  Using SoaDistanceTableBA<T,D,PPPG> of SoA layout " << PPPG
       << std::endl;
     dt = new DistanceTableBA<RealType, DIM, PPPG + SOA_OFFSET>(s, t);
     o << "    Setting Rmax = " << s.Lattice.SimulationCellRadius;
-  }
-  else
-  {
+  } else {
     APP_ABORT("DistanceTableData::createDistanceTable Slab/Wire/Open boundary "
               "conditions are disabled in miniQMC!\n");
   }
 
   // set dt properties
   dt->CellType = sc;
-  dt->DTType   = DT_SOA;
+  dt->DTType = DT_SOA;
   std::ostringstream p;
   p << s.getName() << "_" << t.getName();
   dt->Name = p.str(); // assign the table name
 
   o << " using Cartesian coordinates";
-  if (omp_get_thread_num() == 0)
-  {
+  if (omp_get_thread_num() == 0) {
     app_log() << o.str() << std::endl;
     app_log().flush();
   }

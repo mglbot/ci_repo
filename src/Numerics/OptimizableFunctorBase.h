@@ -49,8 +49,7 @@
  * order is according
  * to insert calls.
  */
-struct OptimizableFunctorBase
-{
+struct OptimizableFunctorBase {
   /// typedef for real values
   typedef OHMMS_PRECISION real_type;
   /// maximum cutoff

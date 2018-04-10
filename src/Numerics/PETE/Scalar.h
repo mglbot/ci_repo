@@ -45,8 +45,7 @@
 //
 //-----------------------------------------------------------------------------
 
-template <class T> class Scalar
-{
+template <class T> class Scalar {
 public:
   //---------------------------------------------------------------------------
   // Default constructor takes no action.
@@ -66,15 +65,11 @@ public:
   // arbitrary argument.
 
   template <class Arg>
-  inline Scalar(const Scalar<T> &s, const Arg &) : scalar_m(s.scalar_m)
-  {
-  }
+  inline Scalar(const Scalar<T> &s, const Arg &) : scalar_m(s.scalar_m) {}
 
   template <class Arg1, class Arg2>
   inline Scalar(const Scalar<T> &s, const Arg1 &, const Arg2 &)
-      : scalar_m(s.scalar_m)
-  {
-  }
+      : scalar_m(s.scalar_m) {}
 
   //---------------------------------------------------------------------------
   // Copy constructor
@@ -89,14 +84,12 @@ public:
   //---------------------------------------------------------------------------
   // Assignment operators.
 
-  inline Scalar<T> &operator=(const Scalar<T> &rhs)
-  {
+  inline Scalar<T> &operator=(const Scalar<T> &rhs) {
     scalar_m = rhs.scalar_m;
     return *this;
   }
 
-  inline Scalar<T> &operator=(const T &rhs)
-  {
+  inline Scalar<T> &operator=(const T &rhs) {
     scalar_m = rhs;
     return *this;
   }
